@@ -1,0 +1,57 @@
+{
+  "name": "@trickle/lec3d",
+  "version": "0.0.1",
+  "description": "easier three.js encapsulated by lec",
+  "main": "dist/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c",
+    "build:dev": "rollup -c --watch",
+    "prepare": "husky install",
+    "scriptname": "cmd"
+  },
+  "keywords": [
+    "three.js",
+    "3d",
+    "lec",
+    "front-end",
+    "fe",
+    "JavaScript",
+    "js"
+  ],
+  "author": [
+    "2779066456@qq.com"
+  ],
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@rollup/plugin-alias": "^5.0.1",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.5",
+    "@rollup/plugin-json": "^6.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@types/three": "^0.156.0",
+    "compare-func": "^2.0.0",
+    "conventional-changelog": "^5.1.0",
+    "conventional-changelog-cli": "^4.1.0",
+    "conventional-changelog-custom-config": "^0.3.1",
+    "esbuild": "^0.19.4",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
+    "rollup": "^4.0.2",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-esbuild": "^6.1.0",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "three": "^0.157.0"
+  },
+  "files": [
+    "src/index.ts"
+  ]
+}
