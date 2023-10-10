@@ -31,7 +31,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Bundle for all packages
-        run: npm run build:all
+        run: npm run build
 
       - name: Typecheck
         run: npm run typecheck
