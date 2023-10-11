@@ -2,11 +2,15 @@
 
 基于three.js进行封装, 用于更快速高效地快速搭建3d展示场景的JS库
 
-> lec3d 直接内置了一个 three.js 避免版本兼容问题
+> lec3d 直接内置了一个 three.js 避免版本兼容问题，这意味着无需再下载 three.js
 >
-> lec3d 也将 three 的 API 直接暴露, 方便原有的 three.js 项目平稳升级 
+> lec3d 也将 three 的 API 直接暴露, 方便原有的 three.js 项目平稳升级
 
 ## 使用指南
+
+```bash
+npm i @trickle/lec3d
+```
 
 使用文档请参考: [lec3d 官方文档](https://lec-org.github.io/lec3d/) (开发+内测中...)
 
