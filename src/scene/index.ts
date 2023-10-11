@@ -1,4 +1,5 @@
-import { Get3dClickEventTargetsParams } from "./type";
+import { CreateControlsParams, Get3dClickEventTargetsParams } from "./type";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as THREE from "three";
 import {
   createScene,
@@ -28,17 +29,30 @@ export const init = () => {
     content: [light.ambientLight, light.dirLight, axesHelper],
   });
 
-  // const element = document.getElementById(elementId);
-  // element?.appendChild(renderer.domElement);
+  // 挂载
+  const mountTo = (element: HTMLElement) => {
+    element.appendChild(renderer.domElement);
+  };
 
   // 每一帧自动更新页面内容
   const refresh = () => {
     renderer.render(scene, camera);
-    window.requestAnimationFrame(refresh);
   };
-  refresh();
 
-  return { renderer, camera, scene };
+  // 内部方法, 每一帧自动刷新
+  const __autoRefresh = () => {
+    refresh();
+    window.requestAnimationFrame(__autoRefresh);
+  };
+  __autoRefresh();
+
+  return {
+    renderer,
+    camera,
+    scene,
+    mountTo,
+    refresh,
+  };
 };
 
 // // 创建2d内容渲染器
@@ -98,4 +112,21 @@ export const get3dClickEventTargets = ({
   const targets = rayCaster.intersectObjects(meshArr);
   // callback?.(targets);
   return targets;
+};
+
+/** 创建控制，如鼠标操作等 */
+export const createControls = ({
+  scene,
+  camera,
+  element,
+  callback,
+}: CreateControlsParams) => {
+  if (!element) {
+    throw "error: no container element!";
+  }
+  const controls = new OrbitControls(camera, element);
+  controls.addEventListener("change", () => {
+    // renderer.render(scene, camera);
+    callback?.(scene, camera);
+  });
 };
