@@ -1,24 +1,24 @@
 ---
 home: true
-title: Home
+title: 首页
 heroImage: /images/384.png
 actions:
-  - text: Get Started
-    link: /guide/index.html
+  - text: 快速上手
+    link: /zh/guide/index.html
     type: primary
-
+ 
 # features:
-#   - title: Light and Efficient
-#     details: a mini ui-build dependency
-#   - title: Easy to Learn
-#     details: simple syntax, only requires basic HTML and JavaScript
-#   - title: No Runtime Dependency
-#     details: no need for installing other dependencies
+#   - title: 轻量高效
+#     details: 非常小型的UI构建库
+#   - title: 无运行时依赖
+#     details: 不依赖第三方库
+#   - title: 易于学习
+#     details: 语法简单，低学习成本
 
 footer: MIT Licensed | Copyright © 2023-present Serio 
 ---
 
-### Install
+### 安装
 
 <CodeGroup>
 <CodeGroupItem title="PNPM" active>
