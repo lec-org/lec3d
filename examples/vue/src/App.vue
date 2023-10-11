@@ -10,24 +10,32 @@
 
   const el = ref()
   onMounted(() => {
-    const { scene, renderer, camera, mountTo, refresh } = lec3d.init()
+    const { scene, renderer, camera, mountTo, refresh, addControls } = lec3d.init()
     // el.value.appendChild(renderer.domElement)
 
-    lec3d.loadGLTF({ 
-      modelPath: '3d_model/scene.gltf', 
-      options: { scale: 30  }, 
-      callback: (gltf, model) => {
-        scene.add(model)
-    }})
-
-    lec3d.createControls({
-      scene,
-      camera,
-      element: renderer.domElement,
+    addControls({
       callback: (scene, camera) => {
         console.log(scene, camera)
       }
     })
+
+    lec3d.loadGLTF({ 
+      modelPath: '3d_model/scene.gltf', 
+      options: {
+        scale: 30,
+        position: {
+          x: 100,
+          y: 100
+        },
+        rotation: {
+          x: '30',
+          z: -0.5
+        },
+      }, 
+      callback: (gltf, model) => {
+        scene.add(model)
+    }})
+
 
     mountTo(el.value)
   })

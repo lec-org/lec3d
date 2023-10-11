@@ -18644,6 +18644,11 @@ interface CommonModelOptions {
         y?: number;
         z?: number;
     };
+    rotation?: {
+        x?: number | string;
+        y?: number | string;
+        z?: number | string;
+    };
 }
 
 // Type definitions for three 0.156
@@ -19441,10 +19446,7 @@ interface Get3dClickEventTargetsParams {
     camera: Camera;
     event: MouseEvent;
 }
-interface CreateControlsParams {
-    scene: Scene;
-    camera: Camera;
-    element: HTMLElement | null;
+interface AddControlsParams {
     callback?: (scene: Scene, camera: Camera) => void;
 }
 
@@ -19573,13 +19575,13 @@ declare const lec3d: {
     THREE: typeof THREE$1;
     loadGLTF: ({ modelPath, options, callback }: LoadGLTFParams) => void;
     get3dClickEventTargets: ({ scene, camera, event, }: Get3dClickEventTargetsParams) => Intersection<Object3D<Object3DEventMap>>[];
-    createControls: ({ scene, camera, element, callback, }: CreateControlsParams) => void;
     init: () => {
         renderer: WebGLRenderer;
         camera: PerspectiveCamera;
         scene: Scene;
         mountTo: (element: HTMLElement) => void;
         refresh: () => void;
+        addControls: ({ callback }: AddControlsParams) => void;
     };
 };
 

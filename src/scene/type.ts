@@ -21,10 +21,7 @@ export interface Get3dClickEventTargetsParams {
   event: MouseEvent;
 }
 
-export interface CreateControlsParams {
-  scene: Scene;
-  camera: Camera;
-  element: HTMLElement | null;
+export interface AddControlsParams {
   callback?: (scene: Scene, camera: Camera) => void;
 }
 
