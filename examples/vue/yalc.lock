@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "@trickle/lec3d": {
+      "signature": "cbb6b348c88ea5efad6681270c89e3d1",
+      "file": true
+    }
+  }
+}
