@@ -1,0 +1,36 @@
+{
+  "name": "@trickle/lec3d",
+  "version": "0.0.1",
+  "description": "easier three.js encapsulated by lec",
+  "main": "dist/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c",
+    "build:dev": "rollup -c --watch",
+    "scriptname": "cmd"
+  },
+  "keywords": [
+    "three.js",
+    "3d",
+    "lec",
+    "front-end",
+    "fe",
+    "JavaScript",
+    "js"
+  ],
+  "author": [
+    "2779066456@qq.com"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.157.0"
+  },
+  "files": [
+    "src/index.ts"
+  ],
+  "yalcSig": "cbb6b348c88ea5efad6681270c89e3d1"
+}

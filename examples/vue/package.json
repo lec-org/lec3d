@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@trickle/lec3d": "file:.yalc/@trickle/lec3d",
     "vue": "^3.2.41"
   },
   "devDependencies": {
