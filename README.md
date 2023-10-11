@@ -1,10 +1,12 @@
 <h1 align="center"> 🎉lec3d🎈</h1>
 
-基于three.js进行封装, 用于更快速高效地快速搭建3d展示场景的JS库
+基于three.js进行封装, 用于快速高效地搭建3d场景的JS库
 
-> lec3d 直接内置了一个 three.js 避免版本兼容问题，这意味着无需再下载 three.js
+> lec3d 是一个JS库，不限制开发框架
 >
-> lec3d 也将 three 的 API 直接暴露, 方便原有的 three.js 项目平稳升级
+> lec3d 内置 three.js, 避免版本兼容问题，无需再下载 three.js
+>
+> lec3d 将内置的 three.js 的 API 完整暴露, 便于原有的 three.js 项目平稳升级
 
 ## 使用指南
 
