@@ -1,12 +1,12 @@
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-// TODO: 当前先只实现导入 GLTF 文件，后面要用别的类型再加
 import { transferRotationValue } from "./utils.js";
+// TODO: 当前先只实现导入 GLTF 文件，后续再实现其他类型的文件
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { LoadGLTFParams } from "./type";
-import * as THREE from "three";
 // import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 // import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
 // import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import * as THREE from "three";
 
 /** 导入 GLTF 文件 */
 export const loadGLTF = ({ modelPath, options, callback }: LoadGLTFParams) => {

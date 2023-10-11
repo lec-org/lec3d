@@ -1,4 +1,8 @@
-import { AddControlsParams, Get3dClickEventTargetsParams } from "./type";
+import {
+  AddControlsParams,
+  Get3dClickEventTargetsParams,
+  InitParams,
+} from "./type";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as THREE from "three";
 import {
@@ -11,22 +15,23 @@ import {
 } from "./utils.js";
 
 /** 创建基本三维场景 */
-export const init = () => {
+export const init = (params: InitParams) => {
+  // TODO: 完善 createScene 的自定义参数支持
   // 创建场景
   const scene = createScene();
   // 创建并添加光源
-  const light = createLight();
+  const light = createLight({ ...params?.lightConfigs });
   scene.add(light.ambientLight);
   // 创建辅助坐标轴
-  const axesHelper = createAxesHelper();
+  const axesHelper = createAxesHelper({ ...params?.axesHelperConfigs });
   // 创建透视相机
-  const camera = createCamera();
+  const camera = createCamera({ ...params?.cameraConfigs });
   // 创建渲染器
-  const renderer = createRenderer();
+  const renderer = createRenderer({ ...params?.rendererConfigs });
   // 将上述创建的所有内容加入场景
   sceneAdd({
     scene,
-    content: [light.ambientLight, light.dirLight, axesHelper],
+    content: [light.ambientLight, light.directLight, axesHelper],
   });
 
   // 挂载
@@ -39,7 +44,7 @@ export const init = () => {
     renderer.render(scene, camera);
   };
 
-  // 为场景添加鼠标控制
+  // 添加控制, 使鼠标能够控制相机视角
   const addControls = ({ callback }: AddControlsParams) => {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.addEventListener("change", () => {

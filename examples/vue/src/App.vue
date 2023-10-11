@@ -10,7 +10,7 @@
 
   const el = ref()
   onMounted(() => {
-    const { scene, renderer, camera, mountTo, refresh, addControls } = lec3d.init()
+    const { scene, renderer, camera, mountTo, refresh, addControls } = lec3d.init({})
     // el.value.appendChild(renderer.domElement)
 
     addControls({
