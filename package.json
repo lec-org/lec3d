@@ -29,8 +29,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lec-org/lec3d.git"
+    "url": "https://github.com/lec-org/lec3d.git"
   },
+  "homepage": "https://github.com/lec-org/lec3d",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.23.0",

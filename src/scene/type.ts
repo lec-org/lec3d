@@ -21,10 +21,7 @@ export interface Get3dClickEventTargetsParams {
   event: MouseEvent;
 }
 
-export interface CreateControlsParams {
-  scene: Scene;
-  camera: Camera;
-  element: HTMLElement | null;
+export interface AddControlsParams {
   callback?: (scene: Scene, camera: Camera) => void;
 }
 
@@ -32,3 +29,45 @@ export interface SceneAddParams {
   scene: Scene;
   content: Array<SceneItem> | SceneItem;
 }
+
+export interface CreateAxesHelperParams {
+  length?: number;
+}
+
+export interface CreateLightParams {
+  color?: number | string;
+  colorOpacity?: number;
+  ambientLightColor?: number | string;
+  ambientLightColorOpacity?: number;
+  directLightColor?: number | string;
+  directLightColorOpacity?: number;
+}
+
+export interface CreateCameraParams {
+  width?: number;
+  height?: number;
+  position?: {
+    x: number;
+    y: number;
+    z: number;
+  };
+  lookAt?: {
+    x: number;
+    y: number;
+    z: number;
+  };
+}
+
+export interface CreateRendererParams {
+  width?: number;
+  height?: number;
+  backgroundColor?: number | string;
+  backgroundColorOpacity?: number;
+}
+
+export type InitParams = {
+  lightConfigs?: CreateLightParams;
+  cameraConfigs?: CreateCameraParams;
+  axesHelperConfigs?: CreateAxesHelperParams;
+  rendererConfigs?: CreateRendererParams;
+} | null;

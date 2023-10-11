@@ -18644,6 +18644,11 @@ interface CommonModelOptions {
         y?: number;
         z?: number;
     };
+    rotation?: {
+        x?: number | string;
+        y?: number | string;
+        z?: number | string;
+    };
 }
 
 // Type definitions for three 0.156
@@ -19441,12 +19446,46 @@ interface Get3dClickEventTargetsParams {
     camera: Camera;
     event: MouseEvent;
 }
-interface CreateControlsParams {
-    scene: Scene;
-    camera: Camera;
-    element: HTMLElement | null;
+interface AddControlsParams {
     callback?: (scene: Scene, camera: Camera) => void;
 }
+interface CreateAxesHelperParams {
+    length?: number;
+}
+interface CreateLightParams {
+    color?: number | string;
+    colorOpacity?: number;
+    ambientLightColor?: number | string;
+    ambientLightColorOpacity?: number;
+    directLightColor?: number | string;
+    directLightColorOpacity?: number;
+}
+interface CreateCameraParams {
+    width?: number;
+    height?: number;
+    position?: {
+        x: number;
+        y: number;
+        z: number;
+    };
+    lookAt?: {
+        x: number;
+        y: number;
+        z: number;
+    };
+}
+interface CreateRendererParams {
+    width?: number;
+    height?: number;
+    backgroundColor?: number | string;
+    backgroundColorOpacity?: number;
+}
+type InitParams = {
+    lightConfigs?: CreateLightParams;
+    cameraConfigs?: CreateCameraParams;
+    axesHelperConfigs?: CreateAxesHelperParams;
+    rendererConfigs?: CreateRendererParams;
+} | null;
 
 declare class KTX2Loader extends CompressedTextureLoader {
     constructor(manager?: LoadingManager);
@@ -19565,7 +19604,7 @@ interface GLTFLoaderPlugin {
 
 interface LoadGLTFParams {
     modelPath: string;
-    options: CommonModelOptions;
+    options?: CommonModelOptions;
     callback?: (gltf: GLTF, model: THREE.Group<THREE.Object3DEventMap>) => void;
 }
 
@@ -19573,13 +19612,13 @@ declare const lec3d: {
     THREE: typeof THREE$1;
     loadGLTF: ({ modelPath, options, callback }: LoadGLTFParams) => void;
     get3dClickEventTargets: ({ scene, camera, event, }: Get3dClickEventTargetsParams) => Intersection<Object3D<Object3DEventMap>>[];
-    createControls: ({ scene, camera, element, callback, }: CreateControlsParams) => void;
-    init: () => {
+    init: (params: InitParams) => {
         renderer: WebGLRenderer;
         camera: PerspectiveCamera;
         scene: Scene;
         mountTo: (element: HTMLElement) => void;
         refresh: () => void;
+        addControls: ({ callback }: AddControlsParams) => void;
     };
 };
 

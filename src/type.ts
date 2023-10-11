@@ -8,6 +8,11 @@ export interface CommonModelOptions {
     y?: number;
     z?: number;
   };
+  rotation?: {
+    x?: number | string;
+    y?: number | string;
+    z?: number | string;
+  };
 }
 
 export type Renderer = THREE.WebGLRenderer;
