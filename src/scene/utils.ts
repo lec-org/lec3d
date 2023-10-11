@@ -1,6 +1,5 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { CreateControlsParams, SceneAddParams } from "./type";
+import { SceneAddParams } from "./type";
 
 /** 创建场景 */
 export const createScene = () => {
@@ -55,23 +54,6 @@ export const createRenderer = () => {
 export const createAxesHelper = () => {
   const axesHelper = new THREE.AxesHelper(1000);
   return axesHelper;
-};
-
-/** 创建控制，如鼠标操作等 */
-export const createControls = ({
-  scene,
-  camera,
-  element,
-  callback,
-}: CreateControlsParams) => {
-  if (!element) {
-    throw "error: no container element!";
-  }
-  const controls = new OrbitControls(camera, element);
-  controls.addEventListener("change", () => {
-    // renderer.render(scene, camera);
-    callback?.(scene, camera);
-  });
 };
 
 /** 给场景添加内容 */

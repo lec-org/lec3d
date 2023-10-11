@@ -28,5 +28,6 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
+  "outDir": "./dist",
   "require": ["tsconfig-paths/register"]
 }

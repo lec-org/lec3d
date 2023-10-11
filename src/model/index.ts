@@ -16,13 +16,13 @@ export const loadGLTF = ({ modelPath, options, callback }: LoadGLTFParams) => {
   gltfLoader.load(modelPath, (gltf: GLTF) => {
     const model = gltf.scene;
 
-    const x = options?.position?.x ?? 0,
-      y = options?.position?.y ?? 0,
-      z = options?.position?.z ?? 0;
+    const x = options?.position?.x ?? 0;
+    const y = options?.position?.y ?? 0;
+    const z = options?.position?.z ?? 0;
     const scale = options?.scale ?? 1;
 
     model.position.set(x, y, z);
-    model.position.set(scale, scale, scale);
+    model.scale.set(scale, scale, scale);
 
     callback?.(gltf, model);
   });
