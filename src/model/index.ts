@@ -1,5 +1,5 @@
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-import { transferRotationValue } from "./utils.js";
+import { transferRotationValue } from "../utils.js";
 // TODO: 当前先只实现导入 GLTF 文件，后续再实现其他类型的文件
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { LoadGLTFParams } from "./type";

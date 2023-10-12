@@ -15,12 +15,6 @@ export interface InitSceneReturns {
   scene: THREE.Scene;
 }
 
-export interface Get3dClickEventTargetsParams {
-  scene: Scene;
-  camera: Camera;
-  event: MouseEvent;
-}
-
 export interface AddControlsParams {
   callback?: (scene: Scene, camera: Camera) => void;
 }
@@ -71,3 +65,20 @@ export type InitParams = {
   axesHelperConfigs?: CreateAxesHelperParams;
   rendererConfigs?: CreateRendererParams;
 } | null;
+
+export interface CreateCss3dRendererParams {
+  scene: Scene;
+  camera: Camera;
+}
+
+export interface CreateCss3dObjectParams {
+  element: HTMLElement;
+}
+export interface CreatePlaneParams extends CreateCss3dObjectParams {
+  angle: string | number;
+}
+
+export interface InitCss3dParams {
+  scene: Scene;
+  camera: Camera;
+}

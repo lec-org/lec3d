@@ -1,12 +1,10 @@
 import { loadGLTF } from "./model/index.js";
-import { get3dClickEventTargets, init } from "./scene/index.js";
-import * as THREE from "three";
+import { init, initCss3d } from "./scene/index.js";
 
 const lec3d = {
-  THREE,
   loadGLTF,
-  get3dClickEventTargets,
   init,
+  initCss3d,
 };
 
 export default lec3d;
