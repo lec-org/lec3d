@@ -19,11 +19,9 @@
     })
     
     // 创建css3d对象
-    const { mountTo: mountCss3dTo, createCss3dObject,  } = lec3d.initCss3d({scene, camera})
-    const domElement = document.createElement('div')
-    domElement.innerHTML = '<div style="background: red">Hello World</div>'
-    const css3dObject = createCss3dObject({element: domElement})
-    scene.add(css3dObject)
+    const { mountTo: mountCss3dTo, createCss3dObject, createText } = lec3d.initCss3d({scene, camera})
+    const textMesh = createText({text: 'Hello World'})
+    scene.add(textMesh)
 
     addControls({
       callback: (scene, camera) => {

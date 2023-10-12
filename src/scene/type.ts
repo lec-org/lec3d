@@ -82,3 +82,26 @@ export interface InitCss3dParams {
   scene: Scene;
   camera: Camera;
 }
+
+export interface CreateCanvasPlaneParams {
+  element: HTMLElement;
+  callback: (
+    plane: THREE.Mesh<
+      THREE.PlaneGeometry,
+      THREE.MeshBasicMaterial,
+      THREE.Object3DEventMap
+    >
+  ) => void;
+}
+
+export interface CreateTextParams {
+  text: string;
+  color?: number | string;
+  fontSize?: number;
+  thickness?: number;
+  position?: {
+    x: number;
+    y: number;
+    z: number;
+  };
+}

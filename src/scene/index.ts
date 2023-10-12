@@ -10,8 +10,8 @@ import {
   sceneAdd,
   createCss3dRenderer,
   createCss3dObject,
-  createPlane,
   createCss3dSprite,
+  createText,
 } from "./utils.js";
 
 /** 创建基本三维场景 */
@@ -28,7 +28,7 @@ export const init = (params: InitParams) => {
   const camera = createCamera({ ...params?.cameraConfigs });
   // 创建渲染器
   const renderer = createRenderer({ ...params?.rendererConfigs });
-  // 创建地面
+  // TODO: 创建地面
 
   // 将上述创建的所有内容加入场景
   sceneAdd({
@@ -108,6 +108,6 @@ export const initCss3d = ({ scene, camera }: InitCss3dParams) => {
     mountTo,
     createCss3dObject,
     createCss3dSprite,
-    createPlane,
+    createText,
   };
 };

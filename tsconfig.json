@@ -4,6 +4,7 @@
   "exclude": ["node_modules"],
   "ts-node": { "esm": true },
   "compilerOptions": {
+    "moduleResolution": "Node",
     "target": "es2015",
     "module": "ESNext",
     "declaration": true,
@@ -26,7 +27,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
   "outDir": "./dist",
   "require": ["tsconfig-paths/register"]
