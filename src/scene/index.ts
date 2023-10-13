@@ -1,4 +1,4 @@
-import { CreateControlsParams, Get3dClickEventTargetsParams } from "./type";
+import { AddControlsParams, InitCss3dParams, InitParams } from "./type";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as THREE from "three";
 import {
@@ -8,25 +8,32 @@ import {
   createCamera,
   createRenderer,
   sceneAdd,
+  createCss3dRenderer,
+  createCss3dObject,
+  createCss3dSprite,
+  createText,
 } from "./utils.js";
 
 /** 创建基本三维场景 */
-export const init = () => {
+export const init = (params: InitParams) => {
+  // TODO: 完善 createScene 的自定义参数支持
   // 创建场景
   const scene = createScene();
   // 创建并添加光源
-  const light = createLight();
+  const light = createLight({ ...params?.lightConfigs });
   scene.add(light.ambientLight);
   // 创建辅助坐标轴
-  const axesHelper = createAxesHelper();
+  const axesHelper = createAxesHelper({ ...params?.axesHelperConfigs });
   // 创建透视相机
-  const camera = createCamera();
+  const camera = createCamera({ ...params?.cameraConfigs });
   // 创建渲染器
-  const renderer = createRenderer();
-  // 将所有内容加入场景
+  const renderer = createRenderer({ ...params?.rendererConfigs });
+  // TODO: 创建地面
+
+  // 将上述创建的所有内容加入场景
   sceneAdd({
     scene,
-    content: [light.ambientLight, light.dirLight, axesHelper],
+    content: [light.ambientLight, light.directLight, axesHelper],
   });
 
   // 挂载
@@ -37,6 +44,35 @@ export const init = () => {
   // 每一帧自动更新页面内容
   const refresh = () => {
     renderer.render(scene, camera);
+  };
+
+  // 添加控制, 使鼠标能够控制相机视角
+  const addControls = ({ callback }: AddControlsParams) => {
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.addEventListener("change", () => {
+      callback?.(scene, camera);
+    });
+  };
+
+  // 鼠标点击，获取点击射线穿透的所有物体
+  const getClickEventTargets = (event: MouseEvent) => {
+    const meshArr: Array<THREE.Object3D<THREE.Object3DEventMap>> = [];
+    const pointer = new THREE.Vector2();
+    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    const rayCaster = new THREE.Raycaster();
+    rayCaster.setFromCamera(pointer, camera);
+
+    scene.children?.forEach((child) => {
+      if (child.isObject3D) {
+        meshArr.push(child);
+      }
+    });
+
+    const targets = rayCaster.intersectObjects(meshArr);
+    // callback?.(targets);
+    return targets;
   };
 
   // 内部方法, 每一帧自动刷新
@@ -52,66 +88,28 @@ export const init = () => {
     scene,
     mountTo,
     refresh,
+    addControls,
+    getClickEventTargets,
   };
 };
 
-// // 创建2d内容渲染器
-// export const init2dRenderer = () => {
-//   const objRenderer = new CSS2DRenderer();
-//   objRenderer.setSize(window.innerWidth, window.innerHeight);
-//   objRenderer.domElement.style.position = "absolute";
-//   objRenderer.domElement.style.top = "0px";
+/** 创建 css 3d 内容 */
+export const initCss3d = ({ scene, camera }: InitCss3dParams) => {
+  const { refresh, mountTo } = createCss3dRenderer({ scene, camera });
 
-//   objRenderer.domElement.style.pointerEvents = "none";
-//   return objRenderer;
-// };
+  const __autoRefresh = () => {
+    refresh();
+    window.requestAnimationFrame(__autoRefresh);
+  };
+  __autoRefresh();
 
-// export const mount2dObject = (
-//   content: string,
-//   scene: THREE.Scene,
-//   options: Options
-// ) => {
-//   const div = document.createElement("div");
-//   div.innerHTML = `<div class="tag">${content}</div>`;
-
-//   var label = new CSS2DObject(div);
-//   //设置模型对象CSS2DObject在场景位置
-//   //标签标注boxMesh模型所以复制boxMesh的位置
-//   label.position.set(
-//     options.position?.x || 0,
-//     options.position?.y || 0,
-//     options.position?.z || 0
-//   );
-//   //适当偏移标签
-//   label.position.y += 300;
-//   scene.add(label);
-//   return label;
-//   // scene.add(label)
-// };
-
-/** 鼠标点击，获取点击射线穿透的所有物体 */
-export const get3dClickEventTargets = ({
-  scene,
-  camera,
-  event,
-}: Get3dClickEventTargetsParams) => {
-  const meshArr: any[] = [];
-  const pointer = new THREE.Vector2();
-
-  const rayCaster = new THREE.Raycaster();
-  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-  rayCaster.setFromCamera(pointer, camera);
-
-  scene.children?.forEach((child) => {
-    if (child.isObject3D) {
-      meshArr.push(child);
-    }
-  });
-
-  const targets = rayCaster.intersectObjects(meshArr);
-  // callback?.(targets);
-  return targets;
+  return {
+    refresh,
+    mountTo,
+    createCss3dObject,
+    createCss3dSprite,
+    createText,
+  };
 };
 
 /** 创建控制，如鼠标操作等 */

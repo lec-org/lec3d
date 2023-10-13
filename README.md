@@ -1,12 +1,18 @@
-## lec3d
+<h1 align="center"> 🎉lec3d🎈</h1>
 
-基于three.js进行封装, 用于更快速高效地快速搭建3d展示场景的JS库
+基于three.js进行封装, 用于快速高效地搭建3d场景的JS库
 
-> lec3d 直接内置了一个 three.js 避免版本兼容问题
+> lec3d 是一个JS库，不限制开发框架
 >
-> lec3d 也将 three 的 API 直接暴露, 方便原有的 three.js 项目平稳升级 
+> lec3d 内置 three.js, 避免版本兼容问题，无需再下载 three.js
+>
+> lec3d 将内置的 three.js 的 API 完整暴露, 便于原有的 three.js 项目平稳升级
 
 ## 使用指南
+
+```bash
+npm i @trickle/lec3d
+```
 
 使用文档请参考: [lec3d 官方文档](https://lec-org.github.io/lec3d/) (开发+内测中...)
 
@@ -43,4 +49,21 @@ TODO: 补充提交相关细则
 >由衷感谢所有人的积极贡献
 
 <!-- readme: collaborators,contributors -start -->
+<table>
+<tr>
+    <td align="center">
+        <a href="https://github.com/lhuanran">
+            <img src="https://avatars.githubusercontent.com/u/118098272?v=4" width="50;" alt="lhuanran"/>
+            <br />
+            <sub><b>Null</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/CoderSerio">
+            <img src="https://avatars.githubusercontent.com/u/79406469?v=4" width="50;" alt="CoderSerio"/>
+            <br />
+            <sub><b>Carbon 碳苯</b></sub>
+        </a>
+    </td></tr>
+</table>
 <!-- readme: collaborators,contributors -end -->

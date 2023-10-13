@@ -12450,6 +12450,727 @@ declare class PlaneHelper extends LineSegments {
 }
 
 /**
+ * An abstract base class for creating a {@link Curve} object that contains methods for interpolation
+ * @remarks
+ * For an array of Curves see {@link THREE.CurvePath | CurvePath}.
+ * @remarks
+ * This following curves inherit from THREE.Curve:
+ *
+ * **2D curves**
+ *  - {@link THREE.ArcCurve}
+ *  - {@link THREE.CubicBezierCurve}
+ *  - {@link THREE.EllipseCurve}
+ *  - {@link THREE.LineCurve}
+ *  - {@link THREE.QuadraticBezierCurve}
+ *  - {@link THREE.SplineCurve}
+ *
+ * **3D curves**
+ *  - {@link THREE.CatmullRomCurve3}
+ *  - {@link THREE.CubicBezierCurve3}
+ *  - {@link THREE.LineCurve3}
+ *  - {@link THREE.QuadraticBezierCurve3}
+ *
+ * @see {@link https://threejs.org/docs/index.html#api/en/extras/core/Curve | Official Documentation}
+ * @see {@link https://github.com/mrdoob/three.js/blob/master/src/extras/core/Curve.js | Source}
+ */
+declare abstract class Curve<T extends Vector> {
+    protected constructor();
+
+    /**
+     * A Read-only _string_ to check if `this` object type.
+     * @remarks Sub-classes will update this value.
+     * @defaultValue `Curve`
+     */
+    readonly type: string | 'Curve';
+
+    /**
+     * This value determines the amount of divisions when calculating the cumulative segment lengths of a {@link Curve}
+     * via {@link .getLengths}.
+     * To ensure precision when using methods like {@link .getSpacedPoints}, it is recommended to increase {@link .arcLengthDivisions} if the {@link Curve} is very large.
+     * @defaultValue `200`
+     * @remarks Expects a `Integer`
+     */
+    arcLengthDivisions: number;
+
+    /**
+     * Returns a vector for a given position on the curve.
+     * @param t A position on the curve. Must be in the range `[ 0, 1 ]`. Expects a `Float`
+     * @param optionalTarget If specified, the result will be copied into this Vector, otherwise a new Vector will be created. Default `new T`.
+     */
+    getPoint(t: number, optionalTarget?: T): T;
+
+    /**
+     * Returns a vector for a given position on the {@link Curve} according to the arc length.
+     * @param u A position on the {@link Curve} according to the arc length. Must be in the range `[ 0, 1 ]`. Expects a `Float`
+     * @param optionalTarget If specified, the result will be copied into this Vector, otherwise a new Vector will be created. Default `new T`.
+     */
+    getPointAt(u: number, optionalTarget?: T): T;
+
+    /**
+     * Returns a set of divisions `+1` points using {@link .getPoint | getPoint(t)}.
+     * @param divisions Number of pieces to divide the {@link Curve} into. Expects a `Integer`. Default `5`
+     */
+    getPoints(divisions?: number): T[];
+
+    /**
+     * Returns a set of divisions `+1` equi-spaced points using {@link .getPointAt | getPointAt(u)}.
+     * @param divisions Number of pieces to divide the {@link Curve} into. Expects a `Integer`. Default `5`
+     */
+    getSpacedPoints(divisions?: number): T[];
+
+    /**
+     * Get total {@link Curve} arc length.
+     */
+    getLength(): number;
+
+    /**
+     * Get list of cumulative segment lengths.
+     * @param divisions Expects a `Integer`
+     */
+    getLengths(divisions?: number): number[];
+
+    /**
+     * Update the cumlative segment distance cache
+     * @remarks
+     * The method must be called every time {@link Curve} parameters are changed
+     * If an updated {@link Curve} is part of a composed {@link Curve} like {@link THREE.CurvePath | CurvePath},
+     * {@link .updateArcLengths}() must be called on the composed curve, too.
+     */
+    updateArcLengths(): void;
+
+    /**
+     * Given u in the range `[ 0, 1 ]`,
+     * @remarks
+     * `u` and `t` can then be used to give you points which are equidistant from the ends of the curve, using {@link .getPoint}.
+     * @param u Expects a `Float`
+     * @param distance Expects a `Float`
+     * @returns `t` also in the range `[ 0, 1 ]`. Expects a `Float`.
+     */
+    getUtoTmapping(u: number, distance: number): number;
+
+    /**
+     * Returns a unit vector tangent at t
+     * @remarks
+     * If the derived {@link Curve} does not implement its tangent derivation, two points a small delta apart will be used to find its gradient which seems to give a reasonable approximation.
+     * @param t A position on the curve. Must be in the range `[ 0, 1 ]`. Expects a `Float`
+     * @param optionalTarget If specified, the result will be copied into this Vector, otherwise a new Vector will be created.
+     */
+    getTangent(t: number, optionalTarget?: T): T;
+
+    /**
+     * Returns tangent at a point which is equidistant to the ends of the {@link Curve} from the point given in {@link .getTangent}.
+     * @param u A position on the {@link Curve} according to the arc length. Must be in the range `[ 0, 1 ]`. Expects a `Float`
+     * @param optionalTarget If specified, the result will be copied into this Vector, otherwise a new Vector will be created.
+     */
+    getTangentAt(u: number, optionalTarget?: T): T;
+
+    /**
+     * Generates the Frenet Frames
+     * @remarks
+     * Requires a {@link Curve} definition in 3D space
+     * Used in geometries like {@link THREE.TubeGeometry | TubeGeometry} or {@link THREE.ExtrudeGeometry | ExtrudeGeometry}.
+     * @param segments Expects a `Integer`
+     * @param closed
+     */
+    computeFrenetFrames(
+        segments: number,
+        closed?: boolean,
+    ): {
+        tangents: Vector3[];
+        normals: Vector3[];
+        binormals: Vector3[];
+    };
+
+    /**
+     * Creates a clone of this instance.
+     */
+    clone(): this;
+    /**
+     * Copies another {@link Curve} object to this instance.
+     * @param source
+     */
+    copy(source: Curve<T>): this;
+
+    /**
+     * Returns a JSON object representation of this instance.
+     */
+    toJSON(): {};
+
+    /**
+     * Copies the data from the given JSON object to this instance.
+     * @param json
+     */
+    fromJSON(json: {}): this;
+}
+
+/**
+ * Curved Path - a curve path is simply a array of connected curves, but retains the api of a curve.
+ * @remarks
+ * A {@link CurvePath} is simply an array of connected curves, but retains the api of a curve.
+ * @see {@link https://threejs.org/docs/index.html#api/en/extras/core/CurvePath | Official Documentation}
+ * @see {@link https://github.com/mrdoob/three.js/blob/master/src/extras/core/CurvePath.js | Source}
+ */
+declare class CurvePath<T extends Vector> extends Curve<T> {
+    /**
+     * The constructor take no parameters.
+     */
+    constructor();
+
+    /**
+     * A Read-only _string_ to check if `this` object type.
+     * @remarks Sub-classes will update this value.
+     * @defaultValue `CurvePath`
+     */
+    override readonly type: string | 'CurvePath';
+
+    /**
+     * The array of {@link Curve | Curves}.
+     * @defaultValue `[]`
+     */
+    curves: Array<Curve<T>>;
+
+    /**
+     * Whether or not to automatically close the path.
+     * @defaultValue false
+     */
+    autoClose: boolean;
+
+    /**
+     * Add a curve to the {@link .curves} array.
+     * @param curve
+     */
+    add(curve: Curve<T>): void;
+    /**
+     * Adds a {@link LineCurve | lineCurve} to close the path.
+     */
+    closePath(): void;
+
+    getPoint(t: number, optionalTarget?: T): T;
+
+    /**
+     * Get list of cumulative curve lengths of the curves in the {@link .curves} array.
+     */
+    getCurveLengths(): number[];
+
+    /**
+     * Returns an array of points representing a sequence of curves
+     * @remarks
+     * The `division` parameter defines the number of pieces each curve is divided into
+     * However, for optimization and quality purposes, the actual sampling resolution for each curve depends on its type
+     * For example, for a {@link THREE.LineCurve | LineCurve}, the returned number of points is always just 2.
+     * @param divisions Number of pieces to divide the curve into. Expects a `Integer`. Default `12`
+     */
+    override getPoints(divisions?: number): T[];
+
+    /**
+     * Returns a set of divisions `+1` equi-spaced points using {@link .getPointAt | getPointAt(u)}.
+     * @param divisions Number of pieces to divide the curve into. Expects a `Integer`. Default `40`
+     */
+    override getSpacedPoints(divisions?: number): T[];
+}
+
+/**
+ * A 2D {@link Path} representation.
+ * @remarks
+ * The class provides methods for creating paths and contours of 2D shapes similar to the 2D Canvas API.
+ * @example
+ * ```typescript
+ * const {@link Path} = new THREE.Path();
+ * path.lineTo(0, 0.8);
+ * path.quadraticCurveTo(0, 1, 0.2, 1);
+ * path.lineTo(1, 1);
+ * const points = path.getPoints();
+ * const geometry = new THREE.BufferGeometry().setFromPoints(points);
+ * const material = new THREE.LineBasicMaterial({
+ *     color: 0xffffff
+ * });
+ * const line = new THREE.Line(geometry, material);
+ * scene.add(line);
+ * ```
+ * @see {@link https://threejs.org/docs/index.html#api/en/extras/core/Path | Official Documentation}
+ * @see {@link https://github.com/mrdoob/three.js/blob/master/src/extras/core/Path.js | Source}
+ */
+declare class Path extends CurvePath<Vector2> {
+    /**
+     * Creates a {@link Path} from the points
+     * @remarks
+     * The first point defines the offset, then successive points are added to the {@link CurvePath.curves | curves} array as {@link LineCurve | LineCurves}.
+     * If no points are specified, an empty {@link Path} is created and the {@link .currentPoint} is set to the origin.
+     * @param points Array of {@link Vector2 | Vector2s}.
+     */
+    constructor(points?: Vector2[]);
+
+    /**
+     * A Read-only _string_ to check if `this` object type.
+     * @remarks Sub-classes will update this value.
+     * @defaultValue `Path`
+     */
+    override readonly type: string | 'Path';
+
+    /**
+     * The current offset of the path. Any new {@link THREE.Curve | Curve} added will start here.
+     * @defaultValue `new THREE.Vector2()`
+     */
+    currentPoint: Vector2;
+
+    /**
+     * Adds an absolutely positioned {@link THREE.EllipseCurve | EllipseCurve} to the path.
+     * @param x Expects a `Float`
+     * @param y X, The absolute center of the arc. Expects a `Float`
+     * @param radius The radius of the arc. Expects a `Float`
+     * @param startAngle The start angle in radians. Expects a `Float`
+     * @param endAngle The end angle in radians. Expects a `Float`
+     * @param clockwise Sweep the arc clockwise. . Default `false`
+     */
+    absarc(aX: number, aY: number, aRadius: number, aStartAngle: number, aEndAngle: number, aClockwise: boolean): this;
+
+    /**
+     * Adds an absolutely positioned {@link THREE.EllipseCurve | EllipseCurve} to the path.
+     * @param x Expects a `Float`
+     * @param y X, The absolute center of the ellipse. Expects a `Float`
+     * @param xRadius The radius of the ellipse in the x axis. Expects a `Float`
+     * @param yRadius The radius of the ellipse in the y axis. Expects a `Float`
+     * @param startAngle The start angle in radians. Expects a `Float`
+     * @param endAngle The end angle in radians. Expects a `Float`
+     * @param clockwise Sweep the ellipse clockwise. . Default `false`
+     * @param rotation The rotation angle of the ellipse in radians, counterclockwise from the positive X axis. Optional, Expects a `Float`. Default `0`
+     */
+    absellipse(
+        aX: number,
+        aY: number,
+        xRadius: number,
+        yRadius: number,
+        aStartAngle: number,
+        aEndAngle: number,
+        aClockwise: boolean,
+        aRotation?: number,
+    ): this;
+
+    /**
+     * Adds an {@link THREE.EllipseCurve | EllipseCurve} to the path, positioned relative to {@link .currentPoint}.
+     * @param x Expects a `Float`
+     * @param y X, The center of the arc offset from the last call. Expects a `Float`
+     * @param radius The radius of the arc. Expects a `Float`
+     * @param startAngle The start angle in radians. Expects a `Float`
+     * @param endAngle The end angle in radians. Expects a `Float`
+     * @param clockwise Sweep the arc clockwise. . Default `false`
+     */
+    arc(aX: number, aY: number, aRadius: number, aStartAngle: number, aEndAngle: number, aClockwise: boolean): this;
+
+    /**
+     * This creates a bezier curve from {@link .currentPoint} with (cp1X, cp1Y) and (cp2X, cp2Y) as control points and updates {@link .currentPoint} to x and y.
+     * @param cp1X Expects a `Float`
+     * @param cp1Y Expects a `Float`
+     * @param cp2X Expects a `Float`
+     * @param cp2Y Expects a `Float`
+     * @param x Expects a `Float`
+     * @param y Expects a `Float`
+     */
+    bezierCurveTo(aCP1x: number, aCP1y: number, aCP2x: number, aCP2y: number, aX: number, aY: number): this;
+
+    /**
+     * Adds an {@link THREE.EllipseCurve | EllipseCurve} to the path, positioned relative to {@link .currentPoint}.
+     * @param x Expects a `Float`
+     * @param y X, The center of the ellipse offset from the last call. Expects a `Float`
+     * @param xRadius The radius of the ellipse in the x axis. Expects a `Float`
+     * @param yRadius The radius of the ellipse in the y axis. Expects a `Float`
+     * @param startAngle The start angle in radians. Expects a `Float`
+     * @param endAngle The end angle in radians. Expects a `Float`
+     * @param clockwise Sweep the ellipse clockwise. . Default `false`
+     * @param rotation The rotation angle of the ellipse in radians, counterclockwise from the positive X axis. Optional, Expects a `Float`. Default `0`
+     */
+    ellipse(
+        aX: number,
+        aY: number,
+        xRadius: number,
+        yRadius: number,
+        aStartAngle: number,
+        aEndAngle: number,
+        aClockwise: boolean,
+        aRotation: number,
+    ): this;
+
+    /**
+     * Connects a {@link THREE.LineCurve | LineCurve} from {@link .currentPoint} to x, y onto the path.
+     * @param x Expects a `Float`
+     * @param y Expects a `Float`
+     */
+    lineTo(x: number, y: number): this;
+
+    /**
+     * Move the {@link .currentPoint} to x, y.
+     * @param x Expects a `Float`
+     * @param y Expects a `Float`
+     */
+    moveTo(x: number, y: number): this;
+
+    /**
+     * Creates a quadratic curve from {@link .currentPoint} with cpX and cpY as control point and updates {@link .currentPoint} to x and y.
+     * @param cpX Expects a `Float`
+     * @param cpY Expects a `Float`
+     * @param x Expects a `Float`
+     * @param y Expects a `Float`
+     */
+    quadraticCurveTo(aCPx: number, aCPy: number, aX: number, aY: number): this;
+
+    /**
+     * Points are added to the {@link CurvePath.curves | curves} array as {@link THREE.LineCurve | LineCurves}.
+     * @param vector2s
+     */
+    setFromPoints(vectors: Vector2[]): this;
+
+    /**
+     * Connects a new {@link THREE.SplineCurve | SplineCurve} onto the path.
+     * @param points An array of {@link Vector2 | Vector2's}
+     */
+    splineThru(pts: Vector2[]): this;
+}
+
+/**
+ * Defines an arbitrary 2d {@link Shape} plane using paths with optional holes
+ * @remarks
+ * It can be used with {@link THREE.ExtrudeGeometry | ExtrudeGeometry}, {@link THREE.ShapeGeometry | ShapeGeometry}, to get points, or to get triangulated faces.
+ * @example
+ * ```typescript
+ * const heartShape = new THREE.Shape();
+ * heartShape.moveTo(25, 25);
+ * heartShape.bezierCurveTo(25, 25, 20, 0, 0, 0);
+ * heartShape.bezierCurveTo(-30, 0, -30, 35, -30, 35);
+ * heartShape.bezierCurveTo(-30, 55, -10, 77, 25, 95);
+ * heartShape.bezierCurveTo(60, 77, 80, 55, 80, 35);
+ * heartShape.bezierCurveTo(80, 35, 80, 0, 50, 0);
+ * heartShape.bezierCurveTo(35, 0, 25, 25, 25, 25);
+ * const extrudeSettings = {
+ *     depth: 8,
+ *     bevelEnabled: true,
+ *     bevelSegments: 2,
+ *     steps: 2,
+ *     bevelSize: 1,
+ *     bevelThickness: 1
+ * };
+ * const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+ * const mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
+ * ```
+ * @see Example: {@link https://threejs.org/examples/#webgl_geometry_shapes | geometry / shapes }
+ * @see Example: {@link https://threejs.org/examples/#webgl_geometry_extrude_shapes | geometry / extrude / shapes }
+ * @see Example: {@link https://threejs.org/examples/#webgl_geometry_extrude_shapes2 | geometry / extrude / shapes2 }
+ * @see {@link https://threejs.org/docs/index.html#api/en/extras/core/Shape | Official Documentation}
+ * @see {@link https://github.com/mrdoob/three.js/blob/master/src/extras/core/Shape.js | Source}
+ */
+declare class Shape extends Path {
+    /**
+     * Creates a {@link Shape} from the points
+     * @remarks
+     * The first point defines the offset, then successive points are added to the {@link CurvePath.curves | curves} array as {@link THREE.LineCurve | LineCurves}.
+     * If no points are specified, an empty {@link Shape} is created and the {@link .currentPoint} is set to the origin.
+     * @param points Array of {@link Vector2 | Vector2s}.
+     */
+    constructor(points?: Vector2[]);
+
+    /**
+     * A Read-only _string_ to check if `this` object type.
+     * @remarks Sub-classes will update this value.
+     * @defaultValue `Shape`
+     */
+    override readonly type: string | 'Shape';
+
+    /**
+     * {@link http://en.wikipedia.org/wiki/Universally_unique_identifier | UUID} of this object instance.
+     * @remarks This gets automatically assigned and shouldn't be edited.
+     */
+    uuid: string;
+
+    /**
+     * An array of {@link Path | paths} that define the holes in the shape.
+     * @defaultValue `[]`
+     */
+    holes: Path[];
+
+    /**
+     * Call {@link THREE.Curve.getPoints | getPoints} on the {@link Shape} and the {@link holes} array
+     * @param divisions The fineness of the result. Expects a `Integer`
+     */
+    extractPoints(divisions: number): {
+        shape: Vector2[];
+        holes: Vector2[][];
+    };
+
+    /**
+     * Get an array of {@link Vector2 | Vector2's} that represent the holes in the shape.
+     * @param divisions The fineness of the result. Expects a `Integer`
+     */
+    getPointsHoles(divisions: number): Vector2[][];
+}
+
+interface ExtrudeGeometryOptions {
+    /**
+     * Number of points on the curves.
+     * Expects a `Integer`.
+     * @defaultValue `12`
+     */
+    curveSegments?: number | undefined;
+
+    /**
+     * Number of points used for subdividing segments along the depth of the extruded spline.
+     * @defaultValue `1`
+     */
+    steps?: number | undefined;
+
+    /**
+     * Depth to extrude the shape.
+     * @defaultValue `1`
+     */
+    depth?: number | undefined;
+
+    /**
+     * Turn on bevel. Applying beveling to the shape.
+     * @defaultValue `true`
+     */
+    bevelEnabled?: boolean | undefined;
+
+    /**
+     * How deep into the original shape the bevel goes.
+     * Expects a `Float`.
+     * @defaultValue `0.2`
+     */
+    bevelThickness?: number | undefined;
+
+    /**
+     * Distance from the shape outline that the bevel extends
+     * Expects a `Float`.
+     * @defaultValue `bevelThickness - 0.1`
+     */
+    bevelSize?: number | undefined;
+
+    /**
+     * Distance from the shape outline that the bevel starts.
+     * Expects a `Float`.
+     * @defaultValue `0`
+     */
+    bevelOffset?: number | undefined;
+
+    /**
+     * Number of bevel layers/segments.
+     * Expects a `Integer`.
+     * @defaultValue `3`
+     */
+    bevelSegments?: number | undefined;
+
+    /**
+     * A 3D spline path along which the shape should be extruded.
+     * @remarks Bevels not supported for path extrusion.
+     */
+    extrudePath?: Curve<Vector3> | undefined;
+
+    /**
+     * A object that provides UV generator functions.
+     */
+    UVGenerator?: UVGenerator | undefined;
+}
+
+interface UVGenerator {
+    generateTopUV(
+        geometry: ExtrudeGeometry,
+        vertices: number[],
+        indexA: number,
+        indexB: number,
+        indexC: number,
+    ): Vector2[];
+    generateSideWallUV(
+        geometry: ExtrudeGeometry,
+        vertices: number[],
+        indexA: number,
+        indexB: number,
+        indexC: number,
+        indexD: number,
+    ): Vector2[];
+}
+
+/**
+ * Creates extruded geometry from a path shape.
+ * @remarks This object extrudes a 2D shape to a 3D geometry.
+ * @remarks When creating a Mesh with this geometry, if you'd like to have a separate material used for its face and its extruded sides, you can use an array of materials
+ * @remarks The first material will be applied to the face; the second material will be applied to the sides.
+ * @example
+ * ```typescript
+ * const length = 12, width = 8;
+ * const shape = new THREE.Shape();
+ * shape.moveTo(0, 0);
+ * shape.lineTo(0, width);
+ * shape.lineTo(length, width);
+ * shape.lineTo(length, 0);
+ * shape.lineTo(0, 0);
+ * const extrudeSettings = {
+ *     steps: 2,
+ *     depth: 16,
+ *     bevelEnabled: true,
+ *     bevelThickness: 1,
+ *     bevelSize: 1,
+ *     bevelOffset: 0,
+ *     bevelSegments: 1
+ * };
+ * const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+ * const material = new THREE.MeshBasicMaterial({
+ *     color: 0x00ff00
+ * });
+ * const mesh = new THREE.Mesh(geometry, material);
+ * scene.add(mesh);
+ * ```
+ * @see {@link https://threejs.org/docs/index.html#api/en/geometries/ExtrudeGeometry | Official Documentation}
+ * @see {@link https://github.com/mrdoob/three.js/blob/master/src/geometries/ExtrudeGeometry.js | Source}
+ */
+declare class ExtrudeGeometry extends BufferGeometry {
+    /**
+     * Create a new instance of {@link ExtrudeGeometry}
+     * @param shapes Shape or an array of shapes. Default `new Shape([new Vector2(0.5, 0.5), new Vector2(-0.5, 0.5), new Vector2(-0.5, -0.5), new Vector2(0.5, -0.5)])`.
+     * @param options Object that can contain the following parameters. @see {@link ExtrudeGeometryOptions} for defaults.
+     */
+    constructor(shapes?: Shape | Shape[], options?: ExtrudeGeometryOptions);
+
+    /**
+     * A Read-only _string_ to check if `this` object type.
+     * @remarks Sub-classes will update this value.
+     * @defaultValue `ExtrudeGeometry`
+     */
+    override readonly type: string | 'ExtrudeGeometry';
+
+    /**
+     * An object with a property for each of the constructor parameters.
+     * @remarks Any modification after instantiation does not change the geometry.
+     */
+    readonly parameters: {
+        readonly shapes: Shape | Shape[];
+        readonly options: ExtrudeGeometryOptions;
+    };
+
+    addShape(shape: Shape): void;
+
+    /** @internal */
+    static fromJSON(data: {}, shapes: unknown): ExtrudeGeometry;
+}
+
+/**
+ * parameters is an object with one or more properties defining the material's appearance.
+ */
+interface MeshBasicMaterialParameters extends MaterialParameters {
+    color?: ColorRepresentation | undefined;
+    opacity?: number | undefined;
+    map?: Texture | null | undefined;
+    lightMap?: Texture | null;
+    lightMapIntensity?: number | undefined;
+    aoMap?: Texture | null | undefined;
+    aoMapIntensity?: number | undefined;
+    specularMap?: Texture | null | undefined;
+    alphaMap?: Texture | null | undefined;
+    fog?: boolean | undefined;
+    envMap?: Texture | null | undefined;
+    combine?: Combine | undefined;
+    reflectivity?: number | undefined;
+    refractionRatio?: number | undefined;
+    wireframe?: boolean | undefined;
+    wireframeLinewidth?: number | undefined;
+    wireframeLinecap?: string | undefined;
+    wireframeLinejoin?: string | undefined;
+}
+
+declare class MeshBasicMaterial extends Material {
+    constructor(parameters?: MeshBasicMaterialParameters);
+
+    /**
+     * @default 'MeshBasicMaterial'
+     */
+    type: string;
+
+    /**
+     * @default new THREE.Color( 0xffffff )
+     */
+    color: Color;
+
+    /**
+     * @default null
+     */
+    map: Texture | null;
+
+    /**
+     * @default null
+     */
+    lightMap: Texture | null;
+
+    /**
+     * @default 1
+     */
+    lightMapIntensity: number;
+
+    /**
+     * @default null
+     */
+    aoMap: Texture | null;
+
+    /**
+     * @default 1
+     */
+    aoMapIntensity: number;
+
+    /**
+     * @default null
+     */
+    specularMap: Texture | null;
+
+    /**
+     * @default null
+     */
+    alphaMap: Texture | null;
+
+    /**
+     * @default null
+     */
+    envMap: Texture | null;
+
+    /**
+     * @default THREE.MultiplyOperation
+     */
+    combine: Combine;
+
+    /**
+     * @default 1
+     */
+    reflectivity: number;
+
+    /**
+     * @default 0.98
+     */
+    refractionRatio: number;
+
+    /**
+     * @default false
+     */
+    wireframe: boolean;
+
+    /**
+     * @default 1
+     */
+    wireframeLinewidth: number;
+
+    /**
+     * @default 'round'
+     */
+    wireframeLinecap: string;
+
+    /**
+     * @default 'round'
+     */
+    wireframeLinejoin: string;
+
+    /**
+     * Whether the material is affected by fog. Default is true.
+     * @default fog
+     */
+    fog: boolean;
+
+    setValues(parameters: MeshBasicMaterialParameters): void;
+}
+
+/**
  * Class representing triangular {@link https://en.wikipedia.org/wiki/Polygon_mesh | polygon mesh} based objects.
  * @remarks
  * Also serves as a base for other classes such as {@link THREE.SkinnedMesh | SkinnedMesh},  {@link THREE.InstancedMesh | InstancedMesh}.
@@ -15969,2673 +16690,6 @@ declare class SkinnedMesh<
     boneTransform(index: number, target: Vector3): Vector3;
 }
 
-/**
- * A continuous line that connects back to the start.
- * @remarks
- * This is nearly the same as {@link THREE.Line | Line},
- * the only difference is that it is rendered using {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawElements | gl.LINE_LOOP}
- * instead of {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawElements | gl.LINE_STRIP},
- * which draws a straight line to the next vertex, and connects the last vertex back to the first.
- * @see {@link https://threejs.org/docs/index.html#api/en/objects/LineLoop | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/objects/LineLoop.js | Source}
- */
-declare class LineLoop<
-    TGeometry extends BufferGeometry = BufferGeometry,
-    TMaterial extends Material | Material[] = Material | Material[],
-> extends Line<TGeometry, TMaterial> {
-    /**
-     * Create a new instance of {@link LineLoop}
-     * @param geometry  List of vertices representing points on the line loop. Default {@link THREE.BufferGeometry | `new THREE.BufferGeometry()`}.
-     * @param material Material for the line. Default {@link THREE.LineBasicMaterial | `new THREE.LineBasicMaterial()`}.
-     */
-    constructor(geometry?: TGeometry, material?: TMaterial);
-
-    /**
-     * Read-only flag to check if a given object is of type {@link LineLoop}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isLineLoop: true;
-
-    /**
-     * @override
-     * @defaultValue `LineLoop`
-     */
-    override readonly type: string | 'LineLoop';
-}
-
-/**
- * A class for displaying {@link Points}
- * @remarks
- * The {@link Points} are rendered by the {@link THREE.WebGLRenderer | WebGLRenderer} using {@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/drawElements | gl.POINTS}.
- * @see {@link https://threejs.org/docs/index.html#api/en/objects/Points | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/objects/Points.js | Source}
- */
-declare class Points<
-    TGeometry extends BufferGeometry<NormalOrGLBufferAttributes> = BufferGeometry,
-    TMaterial extends Material | Material[] = Material | Material[],
-> extends Object3D {
-    /**
-     * Create a new instance of {@link Points}
-     * @param geometry An instance of {@link THREE.BufferGeometry | BufferGeometry}. Default {@link THREE.BufferGeometry | `new THREE.BufferGeometry()`}.
-     * @param material A single or an array of {@link THREE.Material | Material}. Default {@link THREE.PointsMaterial | `new THREE.PointsMaterial()`}.
-     */
-    constructor(geometry?: TGeometry, material?: TMaterial);
-
-    /**
-     * Read-only flag to check if a given object is of type {@link Points}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isPoints: true;
-
-    /**
-     * @override
-     * @defaultValue `Points`
-     */
-    override readonly type: string | 'Points';
-
-    /**
-     * An array of weights typically from `0-1` that specify how much of the morph is applied.
-     * @defaultValue `undefined`, _but reset to a blank array by {@link updateMorphTargets | .updateMorphTargets()}._
-     */
-    morphTargetInfluences?: number[] | undefined;
-
-    /**
-     * A dictionary of morphTargets based on the `morphTarget.name` property.
-     * @defaultValue `undefined`, _but rebuilt by {@link updateMorphTargets | .updateMorphTargets()}._
-     *
-     */
-    morphTargetDictionary?: { [key: string]: number } | undefined;
-
-    /**
-     * An instance of {@link THREE.BufferGeometry | BufferGeometry} (or derived classes), defining the object's structure.
-     * @remarks each vertex designates the position of a particle in the system.
-     */
-    geometry: TGeometry;
-
-    /**
-     * An instance of {@link THREE.Material | Material}, defining the object's appearance.
-     * @defaultValue {@link THREE.PointsMaterial | `new THREE.PointsMaterial()`}, _with randomised colour_.
-     */
-    material: TMaterial;
-
-    /**
-     * Updates the morphTargets to have no influence on the object
-     * @remarks Resets the {@link morphTargetInfluences} and {@link morphTargetDictionary} properties.
-     */
-    updateMorphTargets(): void;
-}
-
-/**
- * Its purpose is to make working with groups of objects syntactically clearer.
- * @remarks This is almost identical to an {@link Object3D | Object3D}
- * @example
- * ```typescript
- * const geometry = new THREE.BoxGeometry(1, 1, 1);
- * const material = new THREE.MeshBasicMaterial({
- *     color: 0x00ff00
- * });
- * const cubeA = new THREE.Mesh(geometry, material);
- * cubeA.position.set(100, 100, 0);
- * const cubeB = new THREE.Mesh(geometry, material);
- * cubeB.position.set(-100, -100, 0);
- * //create a {@link Group} and add the two cubes
- * //These cubes can now be rotated / scaled etc as a {@link Group}  * const {@link Group} = new THREE.Group();
- * group.add(cubeA);
- * group.add(cubeB);
- * scene.add(group);
- * ```
- * @see {@link https://threejs.org/docs/index.html#api/en/objects/Group | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/objects/Group.js | Source}
- */
-declare class Group<TEventMap extends Object3DEventMap = Object3DEventMap> extends Object3D<TEventMap> {
-    /**
-     * Creates a new {@link Group}.
-     */
-    constructor();
-
-    /**
-     * Read-only flag to check if a given object is of type {@link Group}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isGroup: true;
-
-    /**
-     * @override
-     * @defaultValue `Group`
-     */
-    override readonly type: string | 'Group';
-}
-
-declare class WebGLMultipleRenderTargets extends WebGLRenderTarget<Texture[]> {
-    /**
-     * @param width The width of the render target.
-     * @param height The height of the render target.
-     * @param count The number of render targets.
-     * @param options object that holds texture parameters for an auto-generated target texture and depthBuffer/stencilBuffer booleans.
-     * For an explanation of the texture parameters see {@link Texture}.
-     */
-    constructor(width?: number, height?: number, count?: number, options?: WebGLRenderTargetOptions);
-
-    readonly isWebGLMultipleRenderTargets: true;
-}
-
-declare class WebGL1Renderer extends WebGLRenderer {
-    constructor(parameters?: WebGLRendererParameters);
-    readonly isWebGL1Renderer: true;
-}
-
-/**
- * Creates a three-dimensional texture from raw data, with parameters to divide it into width, height, and depth
- * @remarks Compatible only with {@link WebGL2RenderingContext | WebGL 2 Rendering Context}.
- * @example
- * ```typescript
- * This creates a[name] with repeating data, 0 to 255
- * // create a buffer with some data
- * const sizeX = 64;
- * const sizeY = 64;
- * const sizeZ = 64;
- * const data = new Uint8Array(sizeX * sizeY * sizeZ);
- * let i = 0;
- * for (let z = 0; z & lt; sizeZ; z++) {
- *     for (let y = 0; y & lt; sizeY; y++) {
- *         for (let x = 0; x & lt; sizeX; x++) {
- *             data[i] = i % 256;
- *             i++;
- *         }
- *     }
- * }
- * // use the buffer to create the texture
- * const texture = new THREE.Data3DTexture(data, sizeX, sizeY, sizeZ);
- * texture.needsUpdate = true;
- * ```
- * @see Example: {@link https://threejs.org/examples/#webgl2_materials_texture3d | WebGL2 / materials / texture3d}
- * @see Example: {@link https://threejs.org/examples/#webgl2_materials_texture3d_partialupdate | WebGL2 / materials / texture3d / partialupdate}
- * @see Example: {@link https://threejs.org/examples/#webgl2_volume_cloud | WebGL2 / volume / cloud}
- * @see Example: {@link https://threejs.org/examples/#webgl2_volume_perlin | WebGL2 / volume / perlin}
- * @see {@link https://threejs.org/docs/index.html#api/en/textures/Data3DTexture | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/textures/Data3DTexture.js | Source}
- */
-declare class Data3DTexture extends Texture {
-    /**
-     * Create a new instance of {@link Data3DTexture}
-     * @param data {@link https://developer.mozilla.org/en-US/docs/Web/API/ArrayBufferView | ArrayBufferView} of the texture. Default `null`.
-     * @param width Width of the texture. Default `1`.
-     * @param height Height of the texture. Default `1`.
-     * @param depth Depth of the texture. Default `1`.
-     */
-    constructor(data?: BufferSource | null, width?: number, height?: number, depth?: number);
-
-    /**
-     * Read-only flag to check if a given object is of type {@link Data3DTexture}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isData3DTexture: true;
-
-    /**
-     * Overridden with a record type holding data, width and height and depth.
-     * @override
-     */
-    get image(): Texture3DImageData;
-    set image(data: Texture3DImageData);
-
-    /**
-     * @override
-     * @defaultValue {@link THREE.NearestFilter}
-     */
-    magFilter: MagnificationTextureFilter;
-
-    /**
-     * @override
-     * @defaultValue {@link THREE.NearestFilter}
-     */
-    minFilter: MinificationTextureFilter;
-
-    /**
-     * @override
-     * @defaultValue {@link THREE.ClampToEdgeWrapping}
-     */
-    wrapR: Wrapping;
-
-    /**
-     * @override
-     * @defaultValue `false`
-     */
-    flipY: boolean;
-
-    /**
-     * @override
-     * @defaultValue `false`
-     */
-    generateMipmaps: boolean;
-
-    /**
-     * @override
-     * @defaultValue `1`
-     */
-    unpackAlignment: number;
-}
-
-/**
- * Represents a three-dimensional render target.
- */
-declare class WebGL3DRenderTarget extends WebGLRenderTarget {
-    /**
-     * Creates a new WebGL3DRenderTarget.
-     *
-     * @param width the width of the render target, in pixels.
-     * @param height the height of the render target, in pixels.
-     * @param depth the depth of the render target.
-     */
-    constructor(width?: number, height?: number, depth?: number);
-
-    /**
-     * The depth of the render target.
-     */
-    depth: number;
-
-    /**
-     * The texture property is overwritten with an instance of {@link Data3DTexture}.
-     */
-    texture: Data3DTexture;
-
-    readonly isWebGL3DRenderTarget: true;
-}
-
-/**
- * Creates an array of textures directly from raw data, width and height and depth
- * @remarks Compatible only with {@link WebGL2RenderingContext | WebGL 2 Rendering Context}.
- * @example
- * ```typescript
- * This creates a[name] where each texture has a different color.
- * // create a buffer with color data
- * const width = 512;
- * const height = 512;
- * const depth = 100;
- * const size = width * height;
- * const data = new Uint8Array(4 * size * depth);
- * for (let i = 0; i & lt; depth; i++) {
- *     const color = new THREE.Color(Math.random(), Math.random(), Math.random());
- *     const r = Math.floor(color.r * 255);
- *     const g = Math.floor(color.g * 255);
- *     const b = Math.floor(color.b * 255);
- *     for (let j = 0; j & lt; size; j++) {
- *         const stride = (i * size + j) * 4;
- *         data[stride] = r;
- *         data[stride + 1] = g;
- *         data[stride + 2] = b;
- *         data[stride + 3] = 255;
- *     }
- * }
- * // used the buffer to create a [name]
- * const texture = new THREE.DataArrayTexture(data, width, height, depth);
- * texture.needsUpdate = true;
- * ```
- * @see Example: {@link https://threejs.org/examples/#webgl2_materials_texture2darray | WebGL2 / materials / texture2darray}
- * @see Example: {@link https://threejs.org/examples/#webgl2_rendertarget_texture2darray | WebGL2 / rendertarget / texture2darray}
- * @see {@link https://threejs.org/docs/index.html#api/en/textures/DataArrayTexture | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/textures/DataArrayTexture.js | Source}
- */
-declare class DataArrayTexture extends Texture {
-    /**
-     * This creates a new {@link THREE.DataArrayTexture | DataArrayTexture} object.
-     * @remarks The interpretation of the data depends on {@link format} and {@link type}.
-     * @remarks If the {@link type} is {@link THREE.UnsignedByteType}, a {@link Uint8Array} will be useful for addressing the texel data
-     * @remarks If the {@link format} is {@link THREE.RGBAFormat}, data needs four values for one texel; Red, Green, Blue and Alpha (typically the opacity).
-     * @remarks For the packed {@link type | types}, {@link THREE.UnsignedShort4444Type} and {@link THREE.UnsignedShort5551Type}
-     * all color components of one texel can be addressed as bitfields within an integer element of a {@link Uint16Array}.
-     * @remarks In order to use the {@link type | types} {@link THREE.FloatType} and {@link THREE.HalfFloatType},
-     * the WebGL implementation must support the respective extensions _OES_texture_float_ and _OES_texture_half_float_
-     * @remarks In order to use {@link THREE.LinearFilter} for component-wise, bilinear interpolation of the texels based on these types,
-     * the WebGL extensions _OES_texture_float_linear_ or _OES_texture_half_float_linear_ must also be present.
-     * @param data {@link https://developer.mozilla.org/en-US/docs/Web/API/ArrayBufferView | ArrayBufferView} of the texture. Default `null`.
-     * @param width Width of the texture. Default `1`.
-     * @param height Height of the texture. Default `1`.
-     * @param depth Depth of the texture. Default `1`.
-     */
-    constructor(data?: BufferSource, width?: number, height?: number, depth?: number);
-
-    /**
-     * Read-only flag to check if a given object is of type {@link DataArrayTexture}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isDataArrayTexture: true;
-
-    /**
-     * Overridden with a record type holding data, width and height and depth.
-     * @override
-     */
-    get image(): Texture3DImageData;
-    set image(data: Texture3DImageData);
-
-    /**
-     * @override
-     * @defaultValue {@link THREE.NearestFilter}
-     */
-    magFilter: MagnificationTextureFilter;
-
-    /**
-     * @override
-     * @defaultValue {@link THREE.NearestFilter}
-     */
-    minFilter: MinificationTextureFilter;
-
-    /**
-     * @override
-     * @defaultValue  {@link THREE.ClampToEdgeWrapping}
-     */
-    wrapR: boolean;
-
-    /**
-     * @override
-     * @defaultValue `false`
-     */
-    flipY: boolean;
-
-    /**
-     * @override
-     * @defaultValue `false`
-     */
-    generateMipmaps: boolean;
-
-    /**
-     * @override
-     * @defaultValue `1`
-     */
-    unpackAlignment: number;
-}
-
-/**
- * This type of render target represents an array of textures.
- */
-declare class WebGLArrayRenderTarget extends WebGLRenderTarget {
-    /**
-     * Creates a new WebGLArrayRenderTarget.
-     *
-     * @param width the width of the render target, in pixels.
-     * @param height the height of the render target, in pixels.
-     * @param depth the depth/layer count of the render target.
-     */
-    constructor(width?: number, height?: number, depth?: number);
-
-    /**
-     * The depth of the render target.
-     */
-    depth: number;
-
-    /**
-     * The texture property is overwritten with an instance of {@link DataArrayTexture}.
-     */
-    texture: DataArrayTexture;
-
-    readonly isWebGLArrayRenderTarget: true;
-}
-
-declare function cloneUniforms(uniforms_src: any): any;
-declare function mergeUniforms(uniforms: any): any;
-
-declare function cloneUniformsGroups(src: UniformsGroup[]): UniformsGroup[];
-
-declare namespace UniformsUtils {
-    export { mergeUniforms as merge, cloneUniforms as clone };
-}
-
-// Renderers / Shaders /////////////////////////////////////////////////////////////////////
-declare const ShaderChunk: {
-    alphahash_fragment: string;
-    alphahash_pars_fragment: string;
-    alphamap_fragment: string;
-    alphamap_pars_fragment: string;
-    alphatest_fragment: string;
-    alphatest_pars_fragment: string;
-    aomap_fragment: string;
-    aomap_pars_fragment: string;
-    begin_vertex: string;
-    beginnormal_vertex: string;
-    bsdfs: string;
-    iridescence_fragment: string;
-    bumpmap_pars_fragment: string;
-    clipping_planes_fragment: string;
-    clipping_planes_pars_fragment: string;
-    clipping_planes_pars_vertex: string;
-    clipping_planes_vertex: string;
-    color_fragment: string;
-    color_pars_fragment: string;
-    color_pars_vertex: string;
-    color_vertex: string;
-    common: string;
-    cube_uv_reflection_fragment: string;
-    defaultnormal_vertex: string;
-    displacementmap_pars_vertex: string;
-    displacementmap_vertex: string;
-    emissivemap_fragment: string;
-    emissivemap_pars_fragment: string;
-    colorspace_fragment: string;
-    colorspace_pars_fragment: string;
-    envmap_fragment: string;
-    envmap_common_pars_fragment: string;
-    envmap_pars_fragment: string;
-    envmap_pars_vertex: string;
-    envmap_physical_pars_fragment: string;
-    envmap_vertex: string;
-    fog_vertex: string;
-    fog_pars_vertex: string;
-    fog_fragment: string;
-    fog_pars_fragment: string;
-    gradientmap_pars_fragment: string;
-    lightmap_fragment: string;
-    lightmap_pars_fragment: string;
-    lights_lambert_fragment: string;
-    lights_lambert_pars_fragment: string;
-    lights_pars_begin: string;
-    lights_toon_fragment: string;
-    lights_toon_pars_fragment: string;
-    lights_phong_fragment: string;
-    lights_phong_pars_fragment: string;
-    lights_physical_fragment: string;
-    lights_physical_pars_fragment: string;
-    lights_fragment_begin: string;
-    lights_fragment_maps: string;
-    lights_fragment_end: string;
-    logdepthbuf_fragment: string;
-    logdepthbuf_pars_fragment: string;
-    logdepthbuf_pars_vertex: string;
-    logdepthbuf_vertex: string;
-    map_fragment: string;
-    map_pars_fragment: string;
-    map_particle_fragment: string;
-    map_particle_pars_fragment: string;
-    metalnessmap_fragment: string;
-    metalnessmap_pars_fragment: string;
-    morphcolor_vertex: string;
-    morphnormal_vertex: string;
-    morphtarget_pars_vertex: string;
-    morphtarget_vertex: string;
-    normal_fragment_begin: string;
-    normal_fragment_maps: string;
-    normal_pars_fragment: string;
-    normal_pars_vertex: string;
-    normal_vertex: string;
-    normalmap_pars_fragment: string;
-    clearcoat_normal_fragment_begin: string;
-    clearcoat_normal_fragment_maps: string;
-    clearcoat_pars_fragment: string;
-    iridescence_pars_fragment: string;
-    opaque_fragment: string;
-    packing: string;
-    premultiplied_alpha_fragment: string;
-    project_vertex: string;
-    dithering_fragment: string;
-    dithering_pars_fragment: string;
-    roughnessmap_fragment: string;
-    roughnessmap_pars_fragment: string;
-    shadowmap_pars_fragment: string;
-    shadowmap_pars_vertex: string;
-    shadowmap_vertex: string;
-    shadowmask_pars_fragment: string;
-    skinbase_vertex: string;
-    skinning_pars_vertex: string;
-    skinning_vertex: string;
-    skinnormal_vertex: string;
-    specularmap_fragment: string;
-    specularmap_pars_fragment: string;
-    tonemapping_fragment: string;
-    tonemapping_pars_fragment: string;
-    transmission_fragment: string;
-    transmission_pars_fragment: string;
-    uv_pars_fragment: string;
-    uv_pars_vertex: string;
-    uv_vertex: string;
-    worldpos_vertex: string;
-
-    background_vert: string;
-    background_frag: string;
-    backgroundCube_vert: string;
-    backgroundCube_frag: string;
-    cube_vert: string;
-    cube_frag: string;
-    depth_vert: string;
-    depth_frag: string;
-    distanceRGBA_vert: string;
-    distanceRGBA_frag: string;
-    equirect_vert: string;
-    equirect_frag: string;
-    linedashed_vert: string;
-    linedashed_frag: string;
-    meshbasic_vert: string;
-    meshbasic_frag: string;
-    meshlambert_vert: string;
-    meshlambert_frag: string;
-    meshmatcap_vert: string;
-    meshmatcap_frag: string;
-    meshnormal_vert: string;
-    meshnormal_frag: string;
-    meshphong_vert: string;
-    meshphong_frag: string;
-    meshphysical_vert: string;
-    meshphysical_frag: string;
-    meshtoon_vert: string;
-    meshtoon_frag: string;
-    points_vert: string;
-    points_frag: string;
-    shadow_vert: string;
-    shadow_frag: string;
-    sprite_vert: string;
-    sprite_frag: string;
-};
-
-interface WebGLCapabilitiesParameters {
-    precision?: string | undefined;
-    logarithmicDepthBuffer?: boolean | undefined;
-}
-
-declare class WebGLCapabilities {
-    constructor(gl: WebGLRenderingContext, extensions: any, parameters: WebGLCapabilitiesParameters);
-
-    readonly isWebGL2: boolean;
-    readonly drawBuffers: boolean;
-    precision: string;
-    logarithmicDepthBuffer: boolean;
-    maxTextures: number;
-    maxVertexTextures: number;
-    maxTextureSize: number;
-    maxCubemapSize: number;
-    maxAttributes: number;
-    maxVertexUniforms: number;
-    maxVaryings: number;
-    maxFragmentUniforms: number;
-    vertexTextures: boolean;
-    floatFragmentTextures: boolean;
-    floatVertexTextures: boolean;
-    maxSamples: number;
-
-    getMaxAnisotropy(): number;
-    getMaxPrecision(precision: string): string;
-}
-
-declare class WebGLExtensions {
-    constructor(gl: WebGLRenderingContext);
-
-    has(name: string): boolean;
-    init(capabilities: WebGLCapabilities): void;
-    get(name: string): any;
-}
-
-declare function WebGLShader$1(gl: WebGLRenderingContext, type: string, string: string): WebGLShader$1;
-
-declare class WebGLColorBuffer {
-    constructor();
-
-    setMask(colorMask: boolean): void;
-    setLocked(lock: boolean): void;
-    setClear(r: number, g: number, b: number, a: number, premultipliedAlpha: boolean): void;
-    reset(): void;
-}
-
-declare class WebGLDepthBuffer {
-    constructor();
-
-    setTest(depthTest: boolean): void;
-    setMask(depthMask: boolean): void;
-    setFunc(depthFunc: DepthModes): void;
-    setLocked(lock: boolean): void;
-    setClear(depth: number): void;
-    reset(): void;
-}
-
-declare class WebGLStencilBuffer {
-    constructor();
-
-    setTest(stencilTest: boolean): void;
-    setMask(stencilMask: number): void;
-    setFunc(stencilFunc: number, stencilRef: number, stencilMask: number): void;
-    setOp(stencilFail: number, stencilZFail: number, stencilZPass: number): void;
-    setLocked(lock: boolean): void;
-    setClear(stencil: number): void;
-    reset(): void;
-}
-
-declare class WebGLState {
-    constructor(gl: WebGLRenderingContext, extensions: WebGLExtensions, capabilities: WebGLCapabilities);
-
-    buffers: {
-        color: WebGLColorBuffer;
-        depth: WebGLDepthBuffer;
-        stencil: WebGLStencilBuffer;
-    };
-
-    enable(id: number): void;
-    disable(id: number): void;
-    bindFramebuffer(target: number, framebuffer: WebGLFramebuffer | null): void;
-    drawBuffers(renderTarget: WebGLRenderTarget | null, framebuffer: WebGLFramebuffer | null): void;
-    useProgram(program: any): boolean;
-    setBlending(
-        blending: Blending,
-        blendEquation?: BlendingEquation,
-        blendSrc?: BlendingSrcFactor,
-        blendDst?: BlendingDstFactor,
-        blendEquationAlpha?: BlendingEquation,
-        blendSrcAlpha?: BlendingSrcFactor,
-        blendDstAlpha?: BlendingDstFactor,
-        premultiplyAlpha?: boolean,
-    ): void;
-    setMaterial(material: Material, frontFaceCW: boolean): void;
-    setFlipSided(flipSided: boolean): void;
-    setCullFace(cullFace: CullFace): void;
-    setLineWidth(width: number): void;
-    setPolygonOffset(polygonoffset: boolean, factor?: number, units?: number): void;
-    setScissorTest(scissorTest: boolean): void;
-    activeTexture(webglSlot: number): void;
-    bindTexture(webglType: number, webglTexture: any): void;
-    unbindTexture(): void;
-    // Same interface as https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/compressedTexImage2D
-    compressedTexImage2D(
-        target: number,
-        level: number,
-        internalformat: number,
-        width: number,
-        height: number,
-        border: number,
-        data: ArrayBufferView,
-    ): void;
-    // Same interface as https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D
-    texImage2D(
-        target: number,
-        level: number,
-        internalformat: number,
-        width: number,
-        height: number,
-        border: number,
-        format: number,
-        type: number,
-        pixels: ArrayBufferView | null,
-    ): void;
-    texImage2D(target: number, level: number, internalformat: number, format: number, type: number, source: any): void;
-    texImage3D(
-        target: number,
-        level: number,
-        internalformat: number,
-        width: number,
-        height: number,
-        depth: number,
-        border: number,
-        format: number,
-        type: number,
-        pixels: any,
-    ): void;
-    scissor(scissor: Vector4): void;
-    viewport(viewport: Vector4): void;
-    reset(): void;
-}
-
-declare class WebGLProperties {
-    constructor();
-
-    get(object: any): any;
-    remove(object: any): void;
-    update(object: any, key: any, value: any): any;
-    dispose(): void;
-}
-
-declare class WebGLUtils {
-    constructor(gl: WebGLRenderingContext | WebGL2RenderingContext, extensions: any, capabilities: any);
-
-    convert(p: PixelFormat | CompressedPixelFormat | TextureDataType, encoding?: TextureEncoding | null): number | null;
-}
-
-declare class WebGLTextures {
-    constructor(
-        gl: WebGLRenderingContext,
-        extensions: WebGLExtensions,
-        state: WebGLState,
-        properties: WebGLProperties,
-        capabilities: WebGLCapabilities,
-        utils: WebGLUtils,
-        info: WebGLInfo,
-    );
-
-    allocateTextureUnit(): void;
-    resetTextureUnits(): void;
-    setTexture2D(texture: any, slot: number): void;
-    setTexture2DArray(texture: any, slot: number): void;
-    setTexture3D(texture: any, slot: number): void;
-    setTextureCube(texture: any, slot: number): void;
-    setupRenderTarget(renderTarget: any): void;
-    updateRenderTargetMipmap(renderTarget: any): void;
-    updateMultisampleRenderTarget(renderTarget: any): void;
-    safeSetTexture2D(texture: any, slot: number): void;
-    safeSetTextureCube(texture: any, slot: number): void;
-}
-
-declare class WebGLUniforms {
-    constructor(gl: WebGLRenderingContext, program: WebGLProgram);
-
-    setValue(gl: WebGLRenderingContext, name: string, value: any, textures: WebGLTextures): void;
-    setOptional(gl: WebGLRenderingContext, object: any, name: string): void;
-
-    static upload(gl: WebGLRenderingContext, seq: any, values: any[], textures: WebGLTextures): void;
-    static seqWithValue(seq: any, values: any[]): any[];
-}
-
-declare class WebGLProgram {
-    constructor(renderer: WebGLRenderer, cacheKey: string, parameters: object);
-
-    name: string;
-    id: number;
-    cacheKey: string; // unique identifier for this program, used for looking up compiled programs from cache.
-
-    /**
-     * @default 1
-     */
-    usedTimes: number;
-    program: any;
-    vertexShader: WebGLShader$1;
-    fragmentShader: WebGLShader$1;
-    /**
-     * @deprecated Use {@link WebGLProgram#getUniforms getUniforms()} instead.
-     */
-    uniforms: any;
-    /**
-     * @deprecated Use {@link WebGLProgram#getAttributes getAttributes()} instead.
-     */
-    attributes: any;
-
-    getUniforms(): WebGLUniforms;
-    getAttributes(): any;
-    destroy(): void;
-}
-
-/**
- * An object with a series of statistical information about the graphics board memory and the rendering process.
- */
-declare class WebGLInfo {
-    constructor(gl: WebGLRenderingContext);
-
-    /**
-     * @default true
-     */
-    autoReset: boolean;
-
-    /**
-     * @default { geometries: 0, textures: 0 }
-     */
-    memory: {
-        geometries: number;
-        textures: number;
-    };
-
-    /**
-     * @default null
-     */
-    programs: WebGLProgram[] | null;
-
-    /**
-     * @default { frame: 0, calls: 0, triangles: 0, points: 0, lines: 0 }
-     */
-    render: {
-        calls: number;
-        frame: number;
-        lines: number;
-        points: number;
-        triangles: number;
-    };
-    update(count: number, mode: number, instanceCount: number): void;
-    reset(): void;
-}
-
-// Renderers / WebGL /////////////////////////////////////////////////////////////////////
-
-
-declare class WebGLBufferRenderer {
-    constructor(
-        gl: WebGLRenderingContext,
-        extensions: WebGLExtensions,
-        info: WebGLInfo,
-        capabilities: WebGLCapabilities,
-    );
-
-    setMode(value: any): void;
-    render(start: any, count: number): void;
-    renderInstances(start: any, count: number, primcount: number): void;
-}
-
-declare class WebGLClipping {
-    constructor(properties: WebGLProperties);
-
-    uniform: { value: any; needsUpdate: boolean };
-
-    /**
-     * @default 0
-     */
-    numPlanes: number;
-
-    /**
-     * @default 0
-     */
-    numIntersection: number;
-
-    init(planes: any[], enableLocalClipping: boolean): boolean;
-    beginShadows(): void;
-    endShadows(): void;
-    setGlobalState(planes: Plane[], camera: Camera): void;
-    setState(material: Material, camera: Camera, useCache: boolean): void;
-}
-
-declare class WebGLCubeUVMaps {
-    constructor(renderer: WebGLRenderer);
-
-    get<T>(texture: T): T extends Texture ? Texture : T;
-    dispose(): void;
-}
-
-declare class WebGLAttributes {
-    constructor(gl: WebGLRenderingContext | WebGL2RenderingContext, capabilities: WebGLCapabilities);
-
-    get(attribute: BufferAttribute | InterleavedBufferAttribute | GLBufferAttribute):
-        | {
-              buffer: WebGLBuffer;
-              type: number;
-              bytesPerElement: number;
-              version: number;
-          }
-        | undefined;
-
-    remove(attribute: BufferAttribute | InterleavedBufferAttribute | GLBufferAttribute): void;
-
-    update(attribute: BufferAttribute | InterleavedBufferAttribute | GLBufferAttribute, bufferType: number): void;
-}
-
-declare class WebGLGeometries {
-    constructor(gl: WebGLRenderingContext, attributes: WebGLAttributes, info: WebGLInfo);
-
-    get(object: Object3D, geometry: BufferGeometry): BufferGeometry;
-    update(geometry: BufferGeometry): void;
-    getWireframeAttribute(geometry: BufferGeometry): BufferAttribute;
-}
-
-declare class WebGLIndexedBufferRenderer {
-    constructor(gl: WebGLRenderingContext, extensions: any, info: any, capabilities: any);
-
-    setMode(value: any): void;
-    setIndex(index: any): void;
-    render(start: any, count: number): void;
-    renderInstances(start: any, count: number, primcount: number): void;
-}
-
-declare class WebGLLights {
-    constructor(extensions: WebGLExtensions, capabilities: WebGLCapabilities);
-
-    state: {
-        version: number;
-
-        hash: {
-            directionalLength: number;
-            pointLength: number;
-            spotLength: number;
-            rectAreaLength: number;
-            hemiLength: number;
-
-            numDirectionalShadows: number;
-            numPointShadows: number;
-            numSpotShadows: number;
-        };
-
-        ambient: number[];
-        probe: any[];
-        directional: any[];
-        directionalShadow: any[];
-        directionalShadowMap: any[];
-        directionalShadowMatrix: any[];
-        spot: any[];
-        spotShadow: any[];
-        spotShadowMap: any[];
-        spotShadowMatrix: any[];
-        rectArea: any[];
-        point: any[];
-        pointShadow: any[];
-        pointShadowMap: any[];
-        pointShadowMatrix: any[];
-        hemi: any[];
-    };
-
-    get(light: any): any;
-    setup(lights: any): void;
-    setupView(lights: any, camera: any): void;
-}
-
-declare class WebGLObjects {
-    constructor(gl: WebGLRenderingContext, geometries: any, attributes: any, info: any);
-
-    update(object: any): any;
-    dispose(): void;
-}
-
-declare class WebGLCubeMaps {
-    constructor(renderer: WebGLRenderer);
-
-    get(texture: any): any;
-    dispose(): void;
-}
-
-declare class WebGLBindingStates {
-    constructor(
-        gl: WebGLRenderingContext,
-        extensions: WebGLExtensions,
-        attributes: WebGLAttributes,
-        capabilities: WebGLCapabilities,
-    );
-
-    setup(
-        object: Object3D,
-        material: Material,
-        program: WebGLProgram,
-        geometry: BufferGeometry,
-        index: BufferAttribute,
-    ): void;
-    reset(): void;
-    resetDefaultState(): void;
-    dispose(): void;
-    releaseStatesOfGeometry(): void;
-    releaseStatesOfProgram(): void;
-    initAttributes(): void;
-    enableAttribute(attribute: number): void;
-    disableUnusedAttributes(): void;
-}
-
-declare class WebGLPrograms {
-    constructor(
-        renderer: WebGLRenderer,
-        cubemaps: WebGLCubeMaps,
-        extensions: WebGLExtensions,
-        capabilities: WebGLCapabilities,
-        bindingStates: WebGLBindingStates,
-        clipping: WebGLClipping,
-    );
-
-    programs: WebGLProgram[];
-
-    getParameters(material: Material, lights: any, shadows: object[], scene: Scene, object: any): any;
-    getProgramCacheKey(parameters: any): string;
-    getUniforms(material: Material): object;
-    acquireProgram(parameters: any, cacheKey: string): WebGLProgram;
-    releaseProgram(program: WebGLProgram): void;
-}
-
-interface RenderItem {
-    id: number;
-    object: Object3D;
-    geometry: BufferGeometry | null;
-    material: Material;
-    program: WebGLProgram;
-    groupOrder: number;
-    renderOrder: number;
-    z: number;
-    group: Group | null;
-}
-
-declare class WebGLRenderList {
-    constructor(properties: WebGLProperties);
-
-    /**
-     * @default []
-     */
-    opaque: RenderItem[];
-
-    /**
-     * @default []
-     */
-    transparent: RenderItem[];
-
-    /**
-     * @default []
-     */
-    transmissive: RenderItem[];
-
-    init(): void;
-    push(
-        object: Object3D,
-        geometry: BufferGeometry | null,
-        material: Material,
-        groupOrder: number,
-        z: number,
-        group: Group | null,
-    ): void;
-    unshift(
-        object: Object3D,
-        geometry: BufferGeometry | null,
-        material: Material,
-        groupOrder: number,
-        z: number,
-        group: Group | null,
-    ): void;
-    sort(opaqueSort: (a: any, b: any) => number, transparentSort: (a: any, b: any) => number): void;
-    finish(): void;
-}
-
-declare class WebGLRenderLists {
-    constructor(properties: WebGLProperties);
-
-    dispose(): void;
-    get(scene: Scene, renderCallDepth: number): WebGLRenderList;
-}
-
-declare class WebGLShadowMap {
-    constructor(_renderer: WebGLRenderer, _objects: WebGLObjects, _capabilities: WebGLCapabilities);
-
-    /**
-     * @default false
-     */
-    enabled: boolean;
-
-    /**
-     * @default true
-     */
-    autoUpdate: boolean;
-
-    /**
-     * @default false
-     */
-    needsUpdate: boolean;
-
-    /**
-     * @default THREE.PCFShadowMap
-     */
-    type: ShadowMapType;
-
-    render(shadowsArray: Light[], scene: Scene, camera: Camera): void;
-
-    /**
-     * @deprecated Use {@link Material#shadowSide} instead.
-     */
-    cullFace: any;
-}
-
-declare function WebGLUniformsGroups(
-    gl: WebGLRenderingContext,
-    info: WebGLInfo,
-    capabilities: WebGLCapabilities,
-    state: WebGLState,
-): {
-    dispose: () => void;
-    update: (uniformsGroup: UniformsGroup, program: WebGLProgram) => void;
-    bind: (uniformsGroup: UniformsGroup, program: WebGLProgram) => void;
-};
-
-type XRControllerEventType = XRSessionEventType | XRInputSourceEventType | 'disconnected' | 'connected';
-
-declare class XRJointSpace extends Group {
-    readonly jointRadius: number | undefined;
-}
-
-type XRHandJoints = Record<XRHandJoint, XRJointSpace>;
-
-interface XRHandInputState {
-    pinching: boolean;
-}
-
-interface WebXRSpaceEventMap extends Object3DEventMap {
-    select: { data: XRInputSource };
-    selectstart: { data: XRInputSource };
-    selectend: { data: XRInputSource };
-    squeeze: { data: XRInputSource };
-    squeezestart: { data: XRInputSource };
-    squeezeend: { data: XRInputSource };
-
-    connected: { data: XRInputSource };
-    disconnected: { data: XRInputSource };
-
-    pinchend: { handedness: XRHandedness; target: WebXRController }; // This Event break the THREE.EventDispatcher contract, replacing the target to the wrong instance.
-    pinchstart: { handedness: XRHandedness; target: WebXRController }; // This Event break the THREE.EventDispatcher contract, replacing the target to the wrong instance.
-
-    move: {};
-}
-
-declare class XRHandSpace extends Group<WebXRSpaceEventMap> {
-    readonly joints: Partial<XRHandJoints>;
-    readonly inputState: XRHandInputState;
-}
-
-declare class XRTargetRaySpace extends Group<WebXRSpaceEventMap> {
-    hasLinearVelocity: boolean;
-    readonly linearVelocity: Vector3;
-    hasAngularVelocity: boolean;
-    readonly angularVelocity: Vector3;
-}
-
-declare class XRGripSpace extends Group<WebXRSpaceEventMap> {
-    hasLinearVelocity: boolean;
-    readonly linearVelocity: Vector3;
-    hasAngularVelocity: boolean;
-    readonly angularVelocity: Vector3;
-}
-
-declare class WebXRController {
-    constructor();
-
-    getHandSpace(): XRHandSpace;
-    getTargetRaySpace(): XRTargetRaySpace;
-    getGripSpace(): XRGripSpace;
-    dispatchEvent(event: { type: XRControllerEventType; data?: XRInputSource }): this;
-    connect(inputSource: XRInputSource): this;
-    disconnect(inputSource: XRInputSource): this;
-    update(inputSource: XRInputSource, frame: XRFrame, referenceSpace: XRReferenceSpace): this;
-}
-
-// https://threejs.org/docs/#api/en/renderers/webxr/WebXRManager
-
-
-
-type WebXRCamera = PerspectiveCamera & { viewport: Vector4 };
-type WebXRArrayCamera = Omit<ArrayCamera, 'cameras'> & { cameras: [WebXRCamera, WebXRCamera] };
-
-interface WebXRManagerEventMap {
-    sessionstart: {};
-    sessionend: {};
-    planeadded: { data: XRPlane };
-    planeremoved: { data: XRPlane };
-    planechanged: { data: XRPlane };
-    planesdetected: { data: XRPlaneSet };
-}
-
-declare class WebXRManager extends EventDispatcher<WebXRManagerEventMap> {
-    constructor(renderer: any, gl: WebGLRenderingContext);
-
-    /**
-     * @default false
-     */
-    enabled: boolean;
-
-    /**
-     * @default false
-     */
-    isPresenting: boolean;
-
-    /**
-     * @default true
-     */
-    cameraAutoUpdate: boolean;
-
-    getController(index: number): XRTargetRaySpace;
-
-    getControllerGrip(index: number): XRGripSpace;
-
-    getHand(index: number): XRHandSpace;
-
-    setFramebufferScaleFactor(value: number): void;
-
-    setReferenceSpaceType(value: XRReferenceSpaceType): void;
-
-    getReferenceSpace(): XRReferenceSpace | null;
-
-    setReferenceSpace(value: XRReferenceSpace): void;
-
-    getBaseLayer(): XRWebGLLayer | XRProjectionLayer;
-
-    getBinding(): XRWebGLBinding;
-
-    getFrame(): XRFrame;
-
-    getSession(): XRSession | null;
-
-    setSession(value: XRSession | null): Promise<void>;
-
-    getCamera(): WebXRArrayCamera;
-
-    updateCamera(camera: PerspectiveCamera): void;
-
-    setAnimationLoop(callback: XRFrameRequestCallback | null): void;
-
-    getFoveation(): number | undefined;
-
-    setFoveation(value: number): void;
-
-    dispose(): void;
-}
-
-/**
- * This class contains the parameters that define exponential squared fog, which gives a clear view near the camera and a faster than exponentially densening fog farther from the camera.
- * @example
- * ```typescript
- * const scene = new THREE.Scene();
- * scene.fog = new THREE.FogExp2(0xcccccc, 0.002);
- * ```
- * @see Example: {@link https://threejs.org/examples/#webgl_geometry_terrain | webgl geometry terrain}
- * @see {@link https://threejs.org/docs/index.html#api/en/scenes/FogExp2 | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/scenes/FogExp2.js | Source}
- */
-declare class FogExp2 implements FogBase {
-    /**
-     * The color parameter is passed to the {@link THREE.Color | Color} constructor to set the color property
-     * @remarks Color can be a hexadecimal integer or a CSS-style string.
-     * @param color
-     * @param density Expects a `Float`
-     */
-    constructor(color: ColorRepresentation, density?: number);
-
-    /**
-     * Read-only flag to check if a given object is of type {@link FogExp2}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isFogExp2: true;
-
-    /**
-     * Optional name of the object
-     * @remarks _(doesn't need to be unique)_.
-     * @defaultValue `""`
-     */
-    name: string;
-
-    /**
-     * Fog color.
-     * @remarks If set to black, far away objects will be rendered black.
-     */
-    color: Color;
-
-    /**
-     * Defines how fast the fog will grow dense.
-     * @defaultValue `0.00025`
-     * @remarks Expects a `Float`
-     */
-    density: number;
-
-    /**
-     * Returns a new {@link FogExp2} instance with the same parameters as this one.
-     */
-    clone(): FogExp2;
-
-    /**
-     * Return {@link FogExp2} data in JSON format.
-     */
-    toJSON(): any;
-}
-
-/**
- * Creates a texture for use with a video.
- * @remarks
- * Note: After the initial use of a texture, the video cannot be changed
- * Instead, call {@link dispose | .dispose()} on the texture and instantiate a new one.
- * @example
- * ```typescript
- * // assuming you have created a HTML video element with id="video"
- * const video = document.getElementById('video');
- * const texture = new THREE.VideoTexture(video);
- * ```
- * @see Example: {@link https://threejs.org/examples/#webgl_materials_video | materials / video}
- * @see Example: {@link https://threejs.org/examples/#webgl_materials_video_webcam | materials / video / webcam}
- * @see Example: {@link https://threejs.org/examples/#webgl_video_kinect | video / kinect}
- * @see Example: {@link https://threejs.org/examples/#webgl_video_panorama_equirectangular | video / panorama / equirectangular}
- * @see Example: {@link https://threejs.org/examples/#webxr_vr_video | vr / video}
- * @see {@link https://threejs.org/docs/index.html#api/en/textures/VideoTexture | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/textures/VideoTexture.js | Source}
- */
-declare class VideoTexture extends Texture {
-    /**
-     * Create a new instance of {@link VideoTexture}
-     * @param video The video element to use as the texture.
-     * @param mapping See {@link Texture.mapping | .mapping}. Default {@link THREE.Texture.DEFAULT_MAPPING}
-     * @param wrapS See {@link Texture.wrapS | .wrapS}. Default {@link THREE.ClampToEdgeWrapping}
-     * @param wrapT See {@link Texture.wrapT | .wrapT}. Default {@link THREE.ClampToEdgeWrapping}
-     * @param magFilter See {@link Texture.magFilter | .magFilter}. Default {@link THREE.LinearFilter}
-     * @param minFilter  See {@link Texture.minFilter | .minFilter}. Default {@link THREE.LinearFilter}
-     * @param format See {@link Texture.format | .format}. Default {@link THREE.RGBAFormat}
-     * @param type See {@link Texture.type | .type}. Default {@link THREE.UnsignedByteType}
-     * @param anisotropy See {@link Texture.anisotropy | .anisotropy}. Default {@link THREE.Texture.DEFAULT_ANISOTROPY}
-     */
-    constructor(
-        video: HTMLVideoElement,
-        mapping?: Mapping,
-        wrapS?: Wrapping,
-        wrapT?: Wrapping,
-        magFilter?: MagnificationTextureFilter,
-        minFilter?: MinificationTextureFilter,
-        format?: PixelFormat,
-        type?: TextureDataType,
-        anisotropy?: number,
-    );
-
-    /**
-     * Read-only flag to check if a given object is of type {@link VideoTexture}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isVideoTexture: true;
-
-    /**
-     * @override
-     * @defaultValue {@link THREE.LinearFilter}
-     */
-    magFilter: MagnificationTextureFilter;
-
-    /**
-     * @override
-     * @defaultValue {@link THREE.LinearFilter}
-     */
-    minFilter: MinificationTextureFilter;
-
-    /**
-     * @override
-     * @defaultValue `false`
-     */
-    generateMipmaps: boolean;
-
-    /**
-     * @override
-     * You will **not** need to set this manually here as it is handled by the {@link update | update()} method.
-     */
-    set needsUpdate(value: boolean);
-
-    /**
-     * This is called automatically and sets {@link needsUpdate | .needsUpdate } to `true` every time a new frame is available.
-     */
-    update(): void;
-}
-
-/**
- * Creates an texture 2D array based on data in compressed form, for example from a
- * {@link https://en.wikipedia.org/wiki/DirectDraw_Surface | DDS} file.
- * @remarks For use with the {@link THREE.CompressedTextureLoader | CompressedTextureLoader}.
- * @see {@link https://threejs.org/docs/index.html#api/en/textures/CompressedArrayTexture | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/textures/CompressedArrayTexture.js | Source}
- */
-declare class CompressedArrayTexture extends CompressedTexture {
-    /**
-     * Create a new instance of {@link CompressedArrayTexture}
-     * @param mipmaps The mipmaps array should contain objects with data, width and height.
-     * The mipmaps should be of the correct {@link format} and {@link type}. See {@link THREE.mipmaps}.
-     * @param width The width of the biggest mipmap.
-     * @param height The height of the biggest mipmap.
-     * @param depth The number of layers of the 2D array texture
-     * @param format The format used in the mipmaps. See {@link THREE.CompressedPixelFormat}.
-     * @param type See {@link Texture.type | .type}. Default {@link THREE.UnsignedByteType}
-     */
-    constructor(
-        mipmaps: ImageData[],
-        width: number,
-        height: number,
-        depth: number,
-        format: CompressedPixelFormat,
-        type?: TextureDataType,
-    );
-
-    /**
-     * Read-only flag to check if a given object is of type {@link CompressedArrayTexture}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isCompressedArrayTexture: true;
-
-    /**
-     * Overridden with a object containing width and height.
-     * @override
-     */
-    get image(): { width: number; height: number; depth: number };
-    set image(value: { width: number; height: number; depth: number });
-
-    /**
-     * This defines how the texture is wrapped in the depth direction.
-     * @see {@link https://threejs.org/docs/index.html#api/en/constants/Textures | Texture Constants}
-     * @defaultValue {@link THREE.ClampToEdgeWrapping}
-     */
-    wrapR: Wrapping;
-}
-
-/**
- * Creates a texture from a {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas | canvas element}.
- * @remarks
- * This is almost the same as the base {@link Texture | Texture} class,
- * except that it sets {@link Texture.needsUpdate | needsUpdate} to `true` immediately.
- * @see {@link THREE.Texture | Texture}
- * @see {@link https://threejs.org/docs/index.html#api/en/textures/CanvasTexture | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/textures/CanvasTexture.js | Source}
- */
-declare class CanvasTexture extends Texture {
-    /**
-     * This creates a new {@link THREE.CanvasTexture | CanvasTexture} object.
-     * @param canvas The HTML canvas element from which to load the texture.
-     * @param mapping See {@link Texture.mapping | .mapping}. Default {@link THREE.Texture.DEFAULT_MAPPING}
-     * @param wrapS See {@link Texture.wrapS | .wrapS}. Default {@link THREE.ClampToEdgeWrapping}
-     * @param wrapT See {@link Texture.wrapT | .wrapT}. Default {@link THREE.ClampToEdgeWrapping}
-     * @param magFilter See {@link Texture.magFilter | .magFilter}. Default {@link THREE.LinearFilter}
-     * @param minFilter  See {@link Texture.minFilter | .minFilter}. Default {@link THREE.LinearMipmapLinearFilter}
-     * @param format See {@link Texture.format | .format}. Default {@link THREE.RGBAFormat}
-     * @param type See {@link Texture.type | .type}. Default {@link THREE.UnsignedByteType}
-     * @param anisotropy See {@link Texture.anisotropy | .anisotropy}. Default {@link THREE.Texture.DEFAULT_ANISOTROPY}
-     */
-    constructor(
-        canvas: TexImageSource | OffscreenCanvas,
-        mapping?: Mapping,
-        wrapS?: Wrapping,
-        wrapT?: Wrapping,
-        magFilter?: MagnificationTextureFilter,
-        minFilter?: MinificationTextureFilter,
-        format?: PixelFormat,
-        type?: TextureDataType,
-        anisotropy?: number,
-    );
-
-    /**
-     * Read-only flag to check if a given object is of type {@link CanvasTexture}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isCanvasTexture: true;
-}
-
-/**
- * This class can only be used in combination with {@link THREE.WebGLRenderer.copyFramebufferToTexture | WebGLRenderer.copyFramebufferToTexture()}.
- * @example
- * ```typescript
- * const pixelRatio = window.devicePixelRatio;
- * const textureSize = 128 * pixelRatio;
- *
- * // instantiate a framebuffer texture
- * const frameTexture = new FramebufferTexture( textureSize, textureSize, RGBAFormat );
- *
- * // calculate start position for copying part of the frame data
- * const vector = new Vector2();
- * vector.x = ( window.innerWidth * pixelRatio / 2 ) - ( textureSize / 2 );
- * vector.y = ( window.innerHeight * pixelRatio / 2 ) - ( textureSize / 2 );
- *
- * // render the scene
- * renderer.clear();
- * renderer.render( scene, camera );
- *
- * // copy part of the rendered frame into the framebuffer texture
- * renderer.copyFramebufferToTexture( vector, frameTexture );
- * ```
- * @see Example: {@link https://threejs.org/examples/#webgl_framebuffer_texture | webgl_framebuffer_texture}
- * @see {@link https://threejs.org/docs/index.html#api/en/textures/FramebufferTexture | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/textures/FramebufferTexture.js | Source}
- */
-declare class FramebufferTexture extends Texture {
-    /**
-     * Create a new instance of {@link FramebufferTexture}
-     * @param width The width of the texture.
-     * @param height The height of the texture.
-     */
-    constructor(width: number, height: number);
-
-    /**
-     * Read-only flag to check if a given object is of type {@link FramebufferTexture}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isFramebufferTexture: true;
-
-    /**
-     * @override
-     * @defaultValue {@link THREE.NearestFilter}
-     */
-    magFilter: MagnificationTextureFilter;
-
-    /**
-     * @override
-     * @defaultValue {@link THREE.NearestFilter}
-     */
-    minFilter: MinificationTextureFilter;
-
-    /**
-     * @override
-     * @defaultValue `false`
-     */
-    generateMipmaps: boolean;
-}
-
-declare function createCanvasElement(): HTMLCanvasElement;
-
-/**
- * Scenes allow you to set up what and where is to be rendered by three.js
- * @remarks
- * This is where you place objects, lights and cameras.
- * @see Example: {@link https://threejs.org/examples/#webgl_multiple_scenes_comparison | webgl multiple scenes comparison}
- * @see {@link https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene | Manual: Creating a scene}
- * @see {@link https://threejs.org/docs/index.html#api/en/scenes/Scene | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/scenes/Scene.js | Source}
- */
-declare class Scene extends Object3D {
-    /**
-     * Create a new {@link Scene} object.
-     */
-    constructor();
-
-    /**
-     * Read-only flag to check if a given object is of type {@link Scene}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isScene: true;
-
-    /**
-     * @defaultValue `Scene`
-     */
-    type: 'Scene';
-
-    /**
-     * A {@link Fog | fog} instance defining the type of fog that affects everything rendered in the scene.
-     * @defaultValue `null`
-     */
-    fog: FogBase | null;
-
-    /**
-     * Sets the blurriness of the background. Only influences environment maps assigned to {@link THREE.Scene.background | Scene.background}.
-     * @defaultValue `0`
-     * @remarks Expects a `Float` between `0` and `1`.
-     */
-    backgroundBlurriness: number;
-
-    /**
-     * Attenuates the color of the background. Only applies to background textures.
-     * @defaultValue `1`
-     * @remarks Expects a `Float`
-     */
-    backgroundIntensity: number;
-
-    /**
-     * Forces everything in the {@link Scene} to be rendered with the defined material.
-     * @defaultValue `null`
-     */
-    overrideMaterial: Material | null;
-
-    /**
-     * Defines the background of the scene.
-     * @remarks Valid inputs are:
-     *  - A {@link THREE.Color | Color} for defining a uniform colored background.
-     *  - A {@link THREE.Texture | Texture} for defining a (flat) textured background.
-     *  - Texture cubes ({@link THREE.CubeTexture | CubeTexture}) or equirectangular textures for defining a skybox.</li>
-     * @defaultValue `null`
-     */
-    background: Color | Texture | CubeTexture | null;
-
-    /**
-     * Sets the environment map for all physical materials in the scene.
-     * However, it's not possible to overwrite an existing texture assigned to {@link THREE.MeshStandardMaterial.envMap | MeshStandardMaterial.envMap}.
-     * @defaultValue `null`
-     */
-    environment: Texture | null;
-
-    /**
-     * Convert the {@link Scene} to three.js {@link https://github.com/mrdoob/three.js/wiki/JSON-Object-Scene-format-4 | JSON Object/Scene format}.
-     * @param meta Object containing metadata such as textures or images for the scene.
-     */
-    toJSON(meta?: any): any;
-}
-
-interface Renderer {
-    domElement: HTMLCanvasElement;
-
-    render(scene: Object3D, camera: Camera): void;
-    setSize(width: number, height: number, updateStyle?: boolean): void;
-}
-
-interface WebGLRendererParameters {
-    /**
-     * A Canvas where the renderer draws its output.
-     */
-    canvas?: HTMLCanvasElement | OffscreenCanvas | undefined;
-
-    /**
-     * A WebGL Rendering Context.
-     * (https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext)
-     * Default is null
-     */
-    context?: WebGLRenderingContext | undefined;
-
-    /**
-     * shader precision. Can be "highp", "mediump" or "lowp".
-     */
-    precision?: string | undefined;
-
-    /**
-     * default is false.
-     */
-    alpha?: boolean | undefined;
-
-    /**
-     * default is true.
-     */
-    premultipliedAlpha?: boolean | undefined;
-
-    /**
-     * default is false.
-     */
-    antialias?: boolean | undefined;
-
-    /**
-     * default is true.
-     */
-    stencil?: boolean | undefined;
-
-    /**
-     * default is false.
-     */
-    preserveDrawingBuffer?: boolean | undefined;
-
-    /**
-     * Can be "high-performance", "low-power" or "default"
-     */
-    powerPreference?: string | undefined;
-
-    /**
-     * default is true.
-     */
-    depth?: boolean | undefined;
-
-    /**
-     * default is false.
-     */
-    logarithmicDepthBuffer?: boolean | undefined;
-
-    /**
-     * default is false.
-     */
-    failIfMajorPerformanceCaveat?: boolean | undefined;
-}
-
-interface WebGLDebug {
-    /**
-     * Enables error checking and reporting when shader programs are being compiled.
-     */
-    checkShaderErrors: boolean;
-
-    /**
-     * A callback function that can be used for custom error reporting. The callback receives the WebGL context, an
-     * instance of WebGLProgram as well two instances of WebGLShader representing the vertex and fragment shader.
-     * Assigning a custom function disables the default error reporting.
-     * @default `null`
-     */
-    onShaderError:
-        | ((
-              gl: WebGLRenderingContext,
-              program: WebGLProgram,
-              glVertexShader: WebGLShader,
-              glFragmentShader: WebGLShader,
-          ) => void)
-        | null;
-}
-
-/**
- * The WebGL renderer displays your beautifully crafted scenes using WebGL, if your device supports it.
- * This renderer has way better performance than CanvasRenderer.
- *
- * see {@link https://github.com/mrdoob/three.js/blob/master/src/renderers/WebGLRenderer.js|src/renderers/WebGLRenderer.js}
- */
-declare class WebGLRenderer implements Renderer {
-    /**
-     * parameters is an optional object with properties defining the renderer's behaviour.
-     * The constructor also accepts no parameters at all.
-     * In all cases, it will assume sane defaults when parameters are missing.
-     */
-    constructor(parameters?: WebGLRendererParameters);
-
-    /**
-     * A Canvas where the renderer draws its output.
-     * This is automatically created by the renderer in the constructor (if not provided already); you just need to add it to your page.
-     * @default document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' )
-     */
-    domElement: HTMLCanvasElement;
-
-    /**
-     * Defines whether the renderer should automatically clear its output before rendering.
-     * @default true
-     */
-    autoClear: boolean;
-
-    /**
-     * If autoClear is true, defines whether the renderer should clear the color buffer. Default is true.
-     * @default true
-     */
-    autoClearColor: boolean;
-
-    /**
-     * If autoClear is true, defines whether the renderer should clear the depth buffer. Default is true.
-     * @default true
-     */
-    autoClearDepth: boolean;
-
-    /**
-     * If autoClear is true, defines whether the renderer should clear the stencil buffer. Default is true.
-     * @default true
-     */
-    autoClearStencil: boolean;
-
-    /**
-     * Debug configurations.
-     * @default { checkShaderErrors: true }
-     */
-    debug: WebGLDebug;
-
-    /**
-     * Defines whether the renderer should sort objects. Default is true.
-     * @default true
-     */
-    sortObjects: boolean;
-
-    /**
-     * @default []
-     */
-    clippingPlanes: readonly Plane[];
-
-    /**
-     * @default false
-     */
-    localClippingEnabled: boolean;
-
-    extensions: WebGLExtensions;
-
-    /**
-     * Default is LinearEncoding.
-     * @default THREE.LinearEncoding
-     * @deprecated Use {@link WebGLRenderer.outputColorSpace .outputColorSpace} in three.js r152+.
-     */
-    outputEncoding: TextureEncoding;
-
-    /**
-     * Color space used for output to HTMLCanvasElement. Supported values are
-     * {@link SRGBColorSpace} and {@link LinearSRGBColorSpace}.
-     * @default THREE.SRGBColorSpace.
-     */
-    outputColorSpace: ColorSpace;
-
-    get coordinateSystem(): typeof WebGLCoordinateSystem;
-
-    /**
-     * @deprecated Migrate your lighting according to the following guide:
-     * https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733.
-     * @default true
-     */
-    useLegacyLights: boolean;
-
-    /**
-     * @default THREE.NoToneMapping
-     */
-    toneMapping: ToneMapping;
-
-    /**
-     * @default 1
-     */
-    toneMappingExposure: number;
-
-    info: WebGLInfo;
-
-    shadowMap: WebGLShadowMap;
-
-    pixelRatio: number;
-
-    capabilities: WebGLCapabilities;
-    properties: WebGLProperties;
-    renderLists: WebGLRenderLists;
-    state: WebGLState;
-
-    xr: WebXRManager;
-
-    /**
-     * Return the WebGL context.
-     */
-    getContext(): WebGLRenderingContext | WebGL2RenderingContext;
-    getContextAttributes(): any;
-    forceContextLoss(): void;
-    forceContextRestore(): void;
-
-    /**
-     * @deprecated Use {@link WebGLCapabilities#getMaxAnisotropy .capabilities.getMaxAnisotropy()} instead.
-     */
-    getMaxAnisotropy(): number;
-
-    /**
-     * @deprecated Use {@link WebGLCapabilities#precision .capabilities.precision} instead.
-     */
-    getPrecision(): string;
-
-    getPixelRatio(): number;
-    setPixelRatio(value: number): void;
-
-    getDrawingBufferSize(target: Vector2): Vector2;
-    setDrawingBufferSize(width: number, height: number, pixelRatio: number): void;
-
-    getSize(target: Vector2): Vector2;
-
-    /**
-     * Resizes the output canvas to (width, height), and also sets the viewport to fit that size, starting in (0, 0).
-     */
-    setSize(width: number, height: number, updateStyle?: boolean): void;
-
-    getCurrentViewport(target: Vector4): Vector4;
-
-    /**
-     * Copies the viewport into target.
-     */
-    getViewport(target: Vector4): Vector4;
-
-    /**
-     * Sets the viewport to render from (x, y) to (x + width, y + height).
-     * (x, y) is the lower-left corner of the region.
-     */
-    setViewport(x: Vector4 | number, y?: number, width?: number, height?: number): void;
-
-    /**
-     * Copies the scissor area into target.
-     */
-    getScissor(target: Vector4): Vector4;
-
-    /**
-     * Sets the scissor area from (x, y) to (x + width, y + height).
-     */
-    setScissor(x: Vector4 | number, y?: number, width?: number, height?: number): void;
-
-    /**
-     * Returns true if scissor test is enabled; returns false otherwise.
-     */
-    getScissorTest(): boolean;
-
-    /**
-     * Enable the scissor test. When this is enabled, only the pixels within the defined scissor area will be affected by further renderer actions.
-     */
-    setScissorTest(enable: boolean): void;
-
-    /**
-     * Sets the custom opaque sort function for the WebGLRenderLists. Pass null to use the default painterSortStable function.
-     */
-    setOpaqueSort(method: (a: any, b: any) => number): void;
-
-    /**
-     * Sets the custom transparent sort function for the WebGLRenderLists. Pass null to use the default reversePainterSortStable function.
-     */
-    setTransparentSort(method: (a: any, b: any) => number): void;
-
-    /**
-     * Returns a THREE.Color instance with the current clear color.
-     */
-    getClearColor(target: Color): Color;
-
-    /**
-     * Sets the clear color, using color for the color and alpha for the opacity.
-     */
-    setClearColor(color: ColorRepresentation, alpha?: number): void;
-
-    /**
-     * Returns a float with the current clear alpha. Ranges from 0 to 1.
-     */
-    getClearAlpha(): number;
-
-    setClearAlpha(alpha: number): void;
-
-    /**
-     * Tells the renderer to clear its color, depth or stencil drawing buffer(s).
-     * Arguments default to true
-     */
-    clear(color?: boolean, depth?: boolean, stencil?: boolean): void;
-
-    clearColor(): void;
-    clearDepth(): void;
-    clearStencil(): void;
-    clearTarget(renderTarget: WebGLRenderTarget, color: boolean, depth: boolean, stencil: boolean): void;
-
-    /**
-     * @deprecated Use {@link WebGLState#reset .state.reset()} instead.
-     */
-    resetGLState(): void;
-    dispose(): void;
-
-    renderBufferDirect(
-        camera: Camera,
-        scene: Scene,
-        geometry: BufferGeometry,
-        material: Material,
-        object: Object3D,
-        geometryGroup: any,
-    ): void;
-
-    /**
-     * A build in function that can be used instead of requestAnimationFrame. For WebXR projects this function must be used.
-     * @param callback The function will be called every available frame. If `null` is passed it will stop any already ongoing animation.
-     */
-    setAnimationLoop(callback: XRFrameRequestCallback | null): void;
-
-    /**
-     * @deprecated Use {@link WebGLRenderer#setAnimationLoop .setAnimationLoop()} instead.
-     */
-    animate(callback: () => void): void;
-
-    /**
-     * Compiles all materials in the scene with the camera. This is useful to precompile shaders before the first rendering.
-     */
-    compile(scene: Object3D, camera: Camera): void;
-
-    /**
-     * Render a scene or an object using a camera.
-     * The render is done to a previously specified {@link WebGLRenderTarget#renderTarget .renderTarget} set by calling
-     * {@link WebGLRenderer#setRenderTarget .setRenderTarget} or to the canvas as usual.
-     *
-     * By default render buffers are cleared before rendering but you can prevent this by setting the property
-     * {@link WebGLRenderer#autoClear autoClear} to false. If you want to prevent only certain buffers being cleared
-     * you can set either the {@link WebGLRenderer#autoClearColor autoClearColor},
-     * {@link WebGLRenderer#autoClearStencil autoClearStencil} or {@link WebGLRenderer#autoClearDepth autoClearDepth}
-     * properties to false. To forcibly clear one ore more buffers call {@link WebGLRenderer#clear .clear}.
-     */
-    render(scene: Object3D, camera: Camera): void;
-
-    /**
-     * Returns the current active cube face.
-     */
-    getActiveCubeFace(): number;
-
-    /**
-     * Returns the current active mipmap level.
-     */
-    getActiveMipmapLevel(): number;
-
-    /**
-     * Returns the current render target. If no render target is set, null is returned.
-     */
-    getRenderTarget(): WebGLRenderTarget | null;
-
-    /**
-     * @deprecated Use {@link WebGLRenderer#getRenderTarget .getRenderTarget()} instead.
-     */
-    getCurrentRenderTarget(): WebGLRenderTarget | null;
-
-    /**
-     * Sets the active render target.
-     *
-     * @param renderTarget The {@link WebGLRenderTarget renderTarget} that needs to be activated. When `null` is given, the canvas is set as the active render target instead.
-     * @param activeCubeFace Specifies the active cube side (PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5) of {@link WebGLCubeRenderTarget}.
-     * @param activeMipmapLevel Specifies the active mipmap level.
-     */
-    setRenderTarget(
-        renderTarget: WebGLRenderTarget | WebGLMultipleRenderTargets | null,
-        activeCubeFace?: number,
-        activeMipmapLevel?: number,
-    ): void;
-
-    readRenderTargetPixels(
-        renderTarget: WebGLRenderTarget | WebGLMultipleRenderTargets,
-        x: number,
-        y: number,
-        width: number,
-        height: number,
-        buffer: any,
-        activeCubeFaceIndex?: number,
-    ): void;
-
-    /**
-     * Copies a region of the currently bound framebuffer into the selected mipmap level of the selected texture.
-     * This region is defined by the size of the destination texture's mip level, offset by the input position.
-     *
-     * @param position Specifies the pixel offset from which to copy out of the framebuffer.
-     * @param texture Specifies the destination texture.
-     * @param level Specifies the destination mipmap level of the texture.
-     */
-    copyFramebufferToTexture(position: Vector2, texture: Texture, level?: number): void;
-
-    /**
-     * Copies srcTexture to the specified level of dstTexture, offset by the input position.
-     *
-     * @param position Specifies the pixel offset into the dstTexture where the copy will occur.
-     * @param srcTexture Specifies the source texture.
-     * @param dstTexture Specifies the destination texture.
-     * @param level Specifies the destination mipmap level of the texture.
-     */
-    copyTextureToTexture(position: Vector2, srcTexture: Texture, dstTexture: Texture, level?: number): void;
-
-    /**
-     * Copies the pixels of a texture in the bounds sourceBox in the desination texture starting from the given position.
-     * @param sourceBox Specifies the bounds
-     * @param position Specifies the pixel offset into the dstTexture where the copy will occur.
-     * @param srcTexture Specifies the source texture.
-     * @param dstTexture Specifies the destination texture.
-     * @param level Specifies the destination mipmap level of the texture.
-     */
-    copyTextureToTexture3D(
-        sourceBox: Box3,
-        position: Vector3,
-        srcTexture: Texture,
-        dstTexture: Data3DTexture | DataArrayTexture,
-        level?: number,
-    ): void;
-
-    /**
-     * Initializes the given texture. Can be used to preload a texture rather than waiting until first render (which can cause noticeable lags due to decode and GPU upload overhead).
-     *
-     * @param texture The texture to Initialize.
-     */
-    initTexture(texture: Texture): void;
-
-    /**
-     * Can be used to reset the internal WebGL state.
-     */
-    resetState(): void;
-
-    /**
-     * @deprecated Use {@link WebGLRenderer#xr .xr} instead.
-     */
-    vr: boolean;
-
-    /**
-     * @deprecated Use {@link WebGLShadowMap#enabled .shadowMap.enabled} instead.
-     */
-    shadowMapEnabled: boolean;
-
-    /**
-     * @deprecated Use {@link WebGLShadowMap#type .shadowMap.type} instead.
-     */
-    shadowMapType: ShadowMapType;
-
-    /**
-     * @deprecated Use {@link WebGLShadowMap#cullFace .shadowMap.cullFace} instead.
-     */
-    shadowMapCullFace: CullFace;
-
-    /**
-     * @deprecated Use {@link WebGLExtensions#get .extensions.get( 'OES_texture_float' )} instead.
-     */
-    supportsFloatTextures(): any;
-
-    /**
-     * @deprecated Use {@link WebGLExtensions#get .extensions.get( 'OES_texture_half_float' )} instead.
-     */
-    supportsHalfFloatTextures(): any;
-
-    /**
-     * @deprecated Use {@link WebGLExtensions#get .extensions.get( 'OES_standard_derivatives' )} instead.
-     */
-    supportsStandardDerivatives(): any;
-
-    /**
-     * @deprecated Use {@link WebGLExtensions#get .extensions.get( 'WEBGL_compressed_texture_s3tc' )} instead.
-     */
-    supportsCompressedTextureS3TC(): any;
-
-    /**
-     * @deprecated Use {@link WebGLExtensions#get .extensions.get( 'WEBGL_compressed_texture_pvrtc' )} instead.
-     */
-    supportsCompressedTexturePVRTC(): any;
-
-    /**
-     * @deprecated Use {@link WebGLExtensions#get .extensions.get( 'EXT_blend_minmax' )} instead.
-     */
-    supportsBlendMinMax(): any;
-
-    /**
-     * @deprecated Use {@link WebGLCapabilities#vertexTextures .capabilities.vertexTextures} instead.
-     */
-    supportsVertexTextures(): any;
-
-    /**
-     * @deprecated Use {@link WebGLExtensions#get .extensions.get( 'ANGLE_instanced_arrays' )} instead.
-     */
-    supportsInstancedArrays(): any;
-
-    /**
-     * @deprecated Use {@link WebGLRenderer#setScissorTest .setScissorTest()} instead.
-     */
-    enableScissorTest(boolean: any): any;
-}
-
-interface Object3DEventMap {
-    added: {};
-    removed: {};
-}
-
-/**
- * This is the base class for most objects in three.js and provides a set of properties and methods for manipulating objects in 3D space.
- * @remarks Note that this can be used for grouping objects via the {@link THREE.Object3D.add | .add()} method which adds the object as a child,
- * however it is better to use {@link THREE.Group | Group} for this.
- * @see {@link https://threejs.org/docs/index.html#api/en/core/Object3D | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/core/Object3D.js | Source}
- */
-declare class Object3D<TEventMap extends Object3DEventMap = Object3DEventMap> extends EventDispatcher<TEventMap> {
-    /**
-     * This creates a new {@link Object3D} object.
-     */
-    constructor();
-
-    /**
-     * Flag to check if a given object is of type {@link Object3D}.
-     * @remarks This is a _constant_ value
-     * @defaultValue `true`
-     */
-    readonly isObject3D: true;
-
-    /**
-     * Unique number for this {@link Object3D} instance.
-     * @remarks Note that ids are assigned in chronological order: 1, 2, 3, ..., incrementing by one for each new object.
-     * @remarks Expects a `Integer`
-     */
-    readonly id: number;
-
-    /**
-     * {@link http://en.wikipedia.org/wiki/Universally_unique_identifier | UUID} of this object instance.
-     * @remarks This gets automatically assigned and shouldn't be edited.
-     */
-    uuid: string;
-
-    /**
-     * Optional name of the object
-     * @remarks _(doesn't need to be unique)_.
-     * @defaultValue `""`
-     */
-    name: string;
-
-    /**
-     * A Read-only _string_ to check `this` object type.
-     * @remarks This can be used to find a specific type of Object3D in a scene.
-     * @remarks Sub-classes will update this value.
-     * @defaultValue `Object3D`
-     */
-    readonly type: string | 'Object3D';
-
-    /**
-     * Object's parent in the {@link https://en.wikipedia.org/wiki/Scene_graph | scene graph}.
-     * @remarks An object can have at most one parent.
-     * @defaultValue `null`
-     */
-    parent: Object3D | null;
-
-    /**
-     * Array with object's children.
-     * @see {@link THREE.Object3DGroup | Group} for info on manually grouping objects.
-     * @defaultValue `[]`
-     */
-
-    children: Object3D[];
-
-    /**
-     * This is used by the {@link lookAt | lookAt} method, for example, to determine the orientation of the result.
-     * @defaultValue {@link DEFAULT_UP | Object3D.DEFAULT_UP} - that is `(0, 1, 0)`.
-     */
-    up: Vector3;
-
-    /**
-     * Object's local position.
-     * @defaultValue `new THREE.Vector3()` - that is `(0, 0, 0)`.
-     */
-    readonly position: Vector3;
-
-    /**
-     * Object's local rotation ({@link https://en.wikipedia.org/wiki/Euler_angles | Euler angles}), in radians.
-     * @defaultValue `new THREE.Euler()` - that is `(0, 0, 0, Euler.DEFAULT_ORDER)`.
-     */
-    readonly rotation: Euler;
-
-    /**
-     * Object's local rotation as a {@link THREE.Quaternion | Quaternion}.
-     * @defaultValue `new THREE.Quaternion()` - that is `(0,  0, 0, 1)`.
-     */
-    readonly quaternion: Quaternion;
-
-    /**
-     * The object's local scale.
-     * @defaultValue `new THREE.Vector3( 1, 1, 1 )`
-     */
-    readonly scale: Vector3;
-
-    /**
-     * @defaultValue `new THREE.Matrix4()`
-     */
-    readonly modelViewMatrix: Matrix4;
-
-    /**
-     * @defaultValue `new THREE.Matrix3()`
-     */
-    readonly normalMatrix: Matrix3;
-
-    /**
-     * The local transform matrix.
-     * @defaultValue `new THREE.Matrix4()`
-     */
-    matrix: Matrix4;
-
-    /**
-     * The global transform of the object.
-     * @remarks If the {@link Object3D} has no parent, then it's identical to the local transform {@link THREE.Object3D.matrix | .matrix}.
-     * @defaultValue `new THREE.Matrix4()`
-     */
-    matrixWorld: Matrix4;
-
-    /**
-     * When this is set, it calculates the matrix of position, (rotation or quaternion) and
-     * scale every frame and also recalculates the matrixWorld property.
-     * @defaultValue {@link DEFAULT_MATRIX_AUTO_UPDATE} - that is `(true)`.
-     */
-    matrixAutoUpdate: boolean;
-
-    /**
-     * If set, then the renderer checks every frame if the object and its children need matrix updates.
-     * When it isn't, then you have to maintain all matrices in the object and its children yourself.
-     * @defaultValue {@link DEFAULT_MATRIX_WORLD_AUTO_UPDATE} - that is `(true)`.
-     */
-    matrixWorldAutoUpdate: boolean;
-
-    /**
-     * When this is set, it calculates the matrixWorld in that frame and resets this property to false.
-     * @defaultValue `false`
-     */
-    matrixWorldNeedsUpdate: boolean;
-
-    /**
-     * The layer membership of the object.
-     * @remarks The object is only visible if it has at least one layer in common with the {@link THREE.Object3DCamera | Camera} in use.
-     * @remarks This property can also be used to filter out unwanted objects in ray-intersection tests when using {@link THREE.Raycaster | Raycaster}.
-     * @defaultValue `new THREE.Layers()`
-     */
-    layers: Layers;
-
-    /**
-     * Object gets rendered if `true`.
-     * @defaultValue `true`
-     */
-    visible: boolean;
-
-    /**
-     * Whether the object gets rendered into shadow map.
-     * @defaultValue `false`
-     */
-    castShadow: boolean;
-
-    /**
-     * Whether the material receives shadows.
-     * @defaultValue `false`
-     */
-    receiveShadow: boolean;
-
-    /**
-     * When this is set, it checks every frame if the object is in the frustum of the camera before rendering the object.
-     * If set to `false` the object gets rendered every frame even if it is not in the frustum of the camera.
-     * @defaultValue `true`
-     */
-    frustumCulled: boolean;
-
-    /**
-     * This value allows the default rendering order of {@link https://en.wikipedia.org/wiki/Scene_graph | scene graph}
-     * objects to be overridden although opaque and transparent objects remain sorted independently.
-     * @remarks When this property is set for an instance of {@link Group | Group}, all descendants objects will be sorted and rendered together.
-     * @remarks Sorting is from lowest to highest renderOrder.
-     * @defaultValue `0`
-     */
-    renderOrder: number;
-
-    /**
-     * Array with object's animation clips.
-     * @defaultValue `[]`
-     */
-    animations: AnimationClip[];
-
-    /**
-     * An object that can be used to store custom data about the {@link Object3D}.
-     * @remarks It should not hold references to _functions_ as these **will not** be cloned.
-     * @default `{}`
-     */
-    userData: { [key: string]: any }; // TODO Replace this to a Record?
-
-    /**
-     * Custom depth material to be used when rendering to the depth map.
-     * @remarks Can only be used in context of meshes.
-     * @remarks When shadow-casting with a {@link THREE.DirectionalLight | DirectionalLight} or {@link THREE.SpotLight | SpotLight},
-     * if you are modifying vertex positions in the vertex shader you must specify a customDepthMaterial for proper shadows.
-     * @defaultValue `undefined`
-     */
-    customDepthMaterial?: Material | undefined;
-
-    /**
-     * Same as {@link customDepthMaterial}, but used with {@link THREE.Object3DPointLight | PointLight}.
-     * @defaultValue `undefined`
-     */
-    customDistanceMaterial?: Material | undefined;
-
-    /**
-     * An optional callback that is executed immediately before a 3D object is rendered.
-     * @remarks This function is called with the following parameters: renderer, scene, camera, geometry, material, group.
-     * @remarks Please notice that this callback is only executed for `renderable` 3D objects.
-     * Meaning 3D objects which define their visual appearance with geometries and materials like
-     * instances of {@link THREE.Object3DMesh | Mesh}, {@link THREE.Object3DLine | Line}, {@link THREE.Object3DPoints | Points} or {@link THREE.Object3DSprite | Sprite}.
-     * Instances of {@link THREE.Object3DObject3D | Object3D}, {@link THREE.Object3DGroup | Group} or {@link THREE.Object3DBone | Bone}
-     * are not renderable and thus this callback is not executed for such objects.
-     * @defaultValue `() => {}`
-     */
-    onBeforeRender: (
-        renderer: WebGLRenderer,
-        scene: Scene,
-        camera: Camera,
-        geometry: BufferGeometry,
-        material: Material,
-        group: Group,
-    ) => void;
-
-    /**
-     * An optional callback that is executed immediately after a 3D object is rendered.
-     * @remarks This function is called with the following parameters: renderer, scene, camera, geometry, material, group.
-     * @remarks Please notice that this callback is only executed for `renderable` 3D objects.
-     * Meaning 3D objects which define their visual appearance with geometries and materials like
-     * instances of {@link THREE.Object3DMesh | Mesh}, {@link THREE.Object3DLine | Line}, {@link THREE.Object3DPoints | Points} or {@link THREE.Object3DSprite | Sprite}.
-     * Instances of {@link THREE.Object3DObject3D | Object3D}, {@link THREE.Object3DGroup | Group} or {@link THREE.Object3DBone | Bone}
-     * are not renderable and thus this callback is not executed for such objects.
-     * @defaultValue `() => {}`
-     */
-    onAfterRender: (
-        renderer: WebGLRenderer,
-        scene: Scene,
-        camera: Camera,
-        geometry: BufferGeometry,
-        material: Material,
-        group: Group,
-    ) => void;
-
-    /**
-     * The default {@link up} direction for objects, also used as the default position for {@link THREE.DirectionalLight | DirectionalLight},
-     * {@link THREE.HemisphereLight | HemisphereLight} and {@link THREE.Spotlight | Spotlight} (which creates lights shining from the top down).
-     * @defaultValue `new THREE.Vector3( 0, 1, 0)`
-     */
-    static DEFAULT_UP: Vector3;
-
-    /**
-     * The default setting for {@link matrixAutoUpdate} for newly created Object3Ds.
-     * @defaultValue `true`
-     */
-    static DEFAULT_MATRIX_AUTO_UPDATE: boolean;
-
-    /**
-     * The default setting for {@link matrixWorldAutoUpdate} for newly created Object3Ds.
-     * @defaultValue `true`
-     */
-    static DEFAULT_MATRIX_WORLD_AUTO_UPDATE: boolean;
-
-    /**
-     * Applies the matrix transform to the object and updates the object's position, rotation and scale.
-     * @param matrix
-     */
-    applyMatrix4(matrix: Matrix4): void;
-
-    /**
-     * Applies the rotation represented by the quaternion to the object.
-     * @param quaternion
-     */
-    applyQuaternion(quaternion: Quaternion): this;
-
-    /**
-     * Calls {@link THREE.Quaternion.setFromAxisAngle | setFromAxisAngle}({@link axis}, {@link angle}) on the {@link quaternion | .quaternion}.
-     * @param axis A normalized vector in object space.
-     * @param angle Angle in radians. Expects a `Float`
-     */
-    setRotationFromAxisAngle(axis: Vector3, angle: number): void;
-
-    /**
-     * Calls {@link THREE.Quaternion.setFromEuler | setFromEuler}({@link euler}) on the {@link quaternion | .quaternion}.
-     * @param euler Euler angle specifying rotation amount.
-     */
-    setRotationFromEuler(euler: Euler): void;
-
-    /**
-     * Calls {@link THREE.Quaternion.setFromRotationMatrix | setFromRotationMatrix}({@link m}) on the {@link quaternion | .quaternion}.
-     * @remarks Note that this assumes that the upper 3x3 of m is a pure rotation matrix (i.e, unscaled).
-     * @param m Rotate the quaternion by the rotation component of the matrix.
-     */
-    setRotationFromMatrix(m: Matrix4): void;
-
-    /**
-     * Copy the given {@link THREE.Quaternion | Quaternion} into {@link quaternion | .quaternion}.
-     * @param q Normalized Quaternion.
-     */
-    setRotationFromQuaternion(q: Quaternion): void;
-
-    /**
-     * Rotate an object along an axis in object space.
-     * @remarks The axis is assumed to be normalized.
-     * @param axis A normalized vector in object space.
-     * @param angle The angle in radians. Expects a `Float`
-     */
-    rotateOnAxis(axis: Vector3, angle: number): this;
-
-    /**
-     * Rotate an object along an axis in world space.
-     * @remarks The axis is assumed to be normalized
-     * @remarks Method Assumes no rotated parent.
-     * @param axis A normalized vector in world space.
-     * @param angle The angle in radians. Expects a `Float`
-     */
-    rotateOnWorldAxis(axis: Vector3, angle: number): this;
-
-    /**
-     * Rotates the object around _x_ axis in local space.
-     * @param rad The angle to rotate in radians. Expects a `Float`
-     */
-    rotateX(angle: number): this;
-
-    /**
-     * Rotates the object around _y_ axis in local space.
-     * @param rad The angle to rotate in radians. Expects a `Float`
-     */
-    rotateY(angle: number): this;
-
-    /**
-     * Rotates the object around _z_ axis in local space.
-     * @param rad The angle to rotate in radians. Expects a `Float`
-     */
-    rotateZ(angle: number): this;
-
-    /**
-     * Translate an object by distance along an axis in object space
-     * @remarks The axis is assumed to be normalized.
-     * @param axis A normalized vector in object space.
-     * @param distance The distance to translate. Expects a `Float`
-     */
-    translateOnAxis(axis: Vector3, distance: number): this;
-
-    /**
-     * Translates object along x axis in object space by {@link distance} units.
-     * @param distance Expects a `Float`
-     */
-    translateX(distance: number): this;
-
-    /**
-     * Translates object along _y_ axis in object space by {@link distance} units.
-     * @param distance Expects a `Float`
-     */
-    translateY(distance: number): this;
-
-    /**
-     * Translates object along _z_ axis in object space by {@link distance} units.
-     * @param distance Expects a `Float`
-     */
-    translateZ(distance: number): this;
-
-    /**
-     * Converts the vector from this object's local space to world space.
-     * @param vector A vector representing a position in this object's local space.
-     */
-    localToWorld(vector: Vector3): Vector3;
-
-    /**
-     * Converts the vector from world space to this object's local space.
-     * @param vector A vector representing a position in world space.
-     */
-    worldToLocal(vector: Vector3): Vector3;
-
-    /**
-     * Rotates the object to face a point in world space.
-     * @remarks This method does not support objects having non-uniformly-scaled parent(s).
-     * @param vector A vector representing a position in world space to look at.
-     */
-    lookAt(vector: Vector3): void;
-    /**
-     * Rotates the object to face a point in world space.
-     * @remarks This method does not support objects having non-uniformly-scaled parent(s).
-     * @param x Expects a `Float`
-     * @param y Expects a `Float`
-     * @param z Expects a `Float`
-     */
-    lookAt(x: number, y: number, z: number): void;
-
-    /**
-     * Adds another {@link Object3D} as child of this {@link Object3D}.
-     * @remarks An arbitrary number of objects may be added
-     * @remarks Any current parent on an {@link object} passed in here will be removed, since an {@link Object3D} can have at most one parent.
-     * @see {@link attach}
-     * @see {@link THREE.Group | Group} for info on manually grouping objects.
-     * @param object
-     */
-    add(...object: Object3D[]): this;
-
-    /**
-     * Removes a {@link Object3D} as child of this {@link Object3D}.
-     * @remarks An arbitrary number of objects may be removed.
-     * @see {@link THREE.Group | Group} for info on manually grouping objects.
-     * @param object
-     */
-    remove(...object: Object3D[]): this;
-
-    /**
-     * Removes this object from its current parent.
-     */
-    removeFromParent(): this;
-
-    /**
-     * Removes all child objects.
-     */
-    clear(): this;
-
-    /**
-     * Adds a {@link Object3D} as a child of this, while maintaining the object's world transform.
-     * @remarks Note: This method does not support scene graphs having non-uniformly-scaled nodes(s).
-     * @see {@link add}
-     * @param object
-     */
-    attach(object: Object3D): this;
-
-    /**
-     * Searches through an object and its children, starting with the object itself, and returns the first with a matching id.
-     * @remarks Note that ids are assigned in chronological order: 1, 2, 3, ..., incrementing by one for each new object.
-     * @see {@link id}
-     * @param id Unique number of the object instance. Expects a `Integer`
-     */
-    getObjectById(id: number): Object3D | undefined;
-
-    /**
-     * Searches through an object and its children, starting with the object itself, and returns the first with a matching name.
-     * @remarks Note that for most objects the name is an empty string by default
-     * @remarks You will have to set it manually to make use of this method.
-     * @param name String to match to the children's Object3D.name property.
-     */
-    getObjectByName(name: string): Object3D | undefined;
-
-    /**
-     * Searches through an object and its children, starting with the object itself,
-     * and returns the first with a property that matches the value given.
-     *
-     * @param name - the property name to search for.
-     * @param value - value of the given property.
-     */
-    getObjectByProperty(name: string, value: any): Object3D | undefined;
-
-    /**
-     * Searches through an object and its children, starting with the object itself,
-     * and returns the first with a property that matches the value given.
-     * @param name The property name to search for.
-     * @param value Value of the given property.
-     */
-    getObjectsByProperty(name: string, value: any): Object3D[];
-
-    /**
-     * Returns a vector representing the position of the object in world space.
-     * @param target The result will be copied into this Vector3.
-     */
-    getWorldPosition(target: Vector3): Vector3;
-
-    /**
-     * Returns a quaternion representing the rotation of the object in world space.
-     * @param target The result will be copied into this Quaternion.
-     */
-    getWorldQuaternion(target: Quaternion): Quaternion;
-
-    /**
-     * Returns a vector of the scaling factors applied to the object for each axis in world space.
-     * @param target The result will be copied into this Vector3.
-     */
-    getWorldScale(target: Vector3): Vector3;
-
-    /**
-     * Returns a vector representing the direction of object's positive z-axis in world space.
-     * @param target The result will be copied into this Vector3.
-     */
-    getWorldDirection(target: Vector3): Vector3;
-
-    /**
-     * Abstract (empty) method to get intersections between a casted ray and this object
-     * @remarks Subclasses such as {@link THREE.Mesh | Mesh}, {@link THREE.Line | Line}, and {@link THREE.Points | Points} implement this method in order to use raycasting.
-     * @see {@link THREE.Raycaster | Raycaster}
-     * @param raycaster
-     * @param intersects
-     * @defaultValue `() => {}`
-     */
-    raycast(raycaster: Raycaster, intersects: Intersection[]): void;
-
-    /**
-     * Executes the callback on this object and all descendants.
-     * @remarks Note: Modifying the scene graph inside the callback is discouraged.
-     * @param callback A function with as first argument an {@link Object3D} object.
-     */
-    traverse(callback: (object: Object3D) => any): void;
-
-    /**
-     * Like traverse, but the callback will only be executed for visible objects
-     * @remarks Descendants of invisible objects are not traversed.
-     * @remarks Note: Modifying the scene graph inside the callback is discouraged.
-     * @param callback A function with as first argument an {@link Object3D} object.
-     */
-    traverseVisible(callback: (object: Object3D) => any): void;
-
-    /**
-     * Executes the callback on all ancestors.
-     * @remarks Note: Modifying the scene graph inside the callback is discouraged.
-     * @param callback A function with as first argument an {@link Object3D} object.
-     */
-    traverseAncestors(callback: (object: Object3D) => any): void;
-
-    /**
-     * Updates local transform.
-     */
-    updateMatrix(): void;
-
-    /**
-     * Updates the global transform of the object.
-     * And will update the object descendants if {@link matrixWorldNeedsUpdate | .matrixWorldNeedsUpdate} is set to true or if the {@link force} parameter is set to `true`.
-     * @param force A boolean that can be used to bypass {@link matrixWorldAutoUpdate | .matrixWorldAutoUpdate}, to recalculate the world matrix of the object and descendants on the current frame.
-     * Useful if you cannot wait for the renderer to update it on the next frame, assuming {@link matrixWorldAutoUpdate | .matrixWorldAutoUpdate} set to `true`.
-     */
-    updateMatrixWorld(force?: boolean): void;
-
-    /**
-     * Updates the global transform of the object.
-     * @param updateParents Recursively updates global transform of ancestors.
-     * @param updateChildren Recursively updates global transform of descendants.
-     */
-    updateWorldMatrix(updateParents: boolean, updateChildren: boolean): void;
-
-    /**
-     * Convert the object to three.js {@link https://github.com/mrdoob/three.js/wiki/JSON-Object-Scene-format-4 | JSON Object/Scene format}.
-     * @param meta Object containing metadata such as materials, textures or images for the object.
-     */
-    toJSON(meta?: { geometries: any; materials: any; textures: any; images: any }): any;
-
-    /**
-     * Returns a clone of `this` object and optionally all descendants.
-     * @param recursive If true, descendants of the object are also cloned. Default `true`
-     */
-    clone(recursive?: boolean): this;
-
-    /**
-     * Copy the given object into this object
-     * @remarks Note: event listeners and user-defined callbacks ({@link onAfterRender | .onAfterRender} and {@link onBeforeRender | .onBeforeRender}) are not copied.
-     * @param source
-     * @param recursive If true, descendants of the object are also copied. Default `true`
-     */
-    copy(source: this, recursive?: boolean): this;
-}
-
 interface CommonModelOptions {
     scale?: number;
     name?: string;
@@ -18643,6 +16697,11 @@ interface CommonModelOptions {
         x?: number;
         y?: number;
         z?: number;
+    };
+    rotation?: {
+        x?: number | string;
+        y?: number | string;
+        z?: number | string;
     };
 }
 
@@ -19436,16 +17495,63 @@ declare namespace THREE$1 {
   export { THREE$1_ACESFilmicToneMapping as ACESFilmicToneMapping, THREE$1_AddEquation as AddEquation, THREE$1_AddOperation as AddOperation, THREE$1_AdditiveAnimationBlendMode as AdditiveAnimationBlendMode, THREE$1_AdditiveBlending as AdditiveBlending, THREE$1_AlphaFormat as AlphaFormat, THREE$1_AlwaysCompare as AlwaysCompare, THREE$1_AlwaysDepth as AlwaysDepth, THREE$1_AlwaysStencilFunc as AlwaysStencilFunc, THREE$1_AmbientLight as AmbientLight, THREE$1_AmbientLightProbe as AmbientLightProbe, THREE$1_AnimationAction as AnimationAction, type THREE$1_AnimationActionLoopStyles as AnimationActionLoopStyles, type THREE$1_AnimationBlendMode as AnimationBlendMode, THREE$1_AnimationClip as AnimationClip, THREE$1_AnimationLoader as AnimationLoader, THREE$1_AnimationMixer as AnimationMixer, type THREE$1_AnimationMixerEventMap as AnimationMixerEventMap, THREE$1_AnimationObjectGroup as AnimationObjectGroup, AnimationUtils_d as AnimationUtils, type THREE$1_AnyMapping as AnyMapping, type THREE$1_AnyPixelFormat as AnyPixelFormat, THREE$1_ArcCurve as ArcCurve, THREE$1_ArrayCamera as ArrayCamera, THREE$1_ArrowHelper as ArrowHelper, type THREE$1_AttributeGPUType as AttributeGPUType, THREE$1_Audio as Audio, THREE$1_AudioAnalyser as AudioAnalyser, THREE$1_AudioContext as AudioContext, THREE$1_AudioListener as AudioListener, THREE$1_AudioLoader as AudioLoader, THREE$1_AxesHelper as AxesHelper, THREE$1_BackSide as BackSide, type THREE$1_BaseEvent as BaseEvent, THREE$1_BasicDepthPacking as BasicDepthPacking, THREE$1_BasicShadowMap as BasicShadowMap, type THREE$1_Blending as Blending, type THREE$1_BlendingDstFactor as BlendingDstFactor, type THREE$1_BlendingEquation as BlendingEquation, type THREE$1_BlendingSrcFactor as BlendingSrcFactor, THREE$1_Bone as Bone, THREE$1_BooleanKeyframeTrack as BooleanKeyframeTrack, THREE$1_Box2 as Box2, THREE$1_Box3 as Box3, THREE$1_Box3Helper as Box3Helper, THREE$1_BoxGeometry as BoxGeometry, THREE$1_BoxHelper as BoxHelper, THREE$1_BufferAttribute as BufferAttribute, THREE$1_BufferGeometry as BufferGeometry, THREE$1_BufferGeometryLoader as BufferGeometryLoader, THREE$1_ByteType as ByteType, THREE$1_Cache as Cache, THREE$1_Camera as Camera, THREE$1_CameraHelper as CameraHelper, THREE$1_CanvasTexture as CanvasTexture, THREE$1_CapsuleGeometry as CapsuleGeometry, THREE$1_CatmullRom as CatmullRom, THREE$1_CatmullRomCurve3 as CatmullRomCurve3, THREE$1_CineonToneMapping as CineonToneMapping, THREE$1_CircleGeometry as CircleGeometry, THREE$1_ClampToEdgeWrapping as ClampToEdgeWrapping, THREE$1_Clock as Clock, THREE$1_Color as Color, THREE$1_ColorKeyframeTrack as ColorKeyframeTrack, THREE$1_ColorManagement as ColorManagement, type THREE$1_ColorRepresentation as ColorRepresentation, type THREE$1_ColorSpace as ColorSpace, type THREE$1_Combine as Combine, THREE$1_CompressedArrayTexture as CompressedArrayTexture, type THREE$1_CompressedPixelFormat as CompressedPixelFormat, THREE$1_CompressedTexture as CompressedTexture, THREE$1_CompressedTextureLoader as CompressedTextureLoader, THREE$1_ConeGeometry as ConeGeometry, type THREE$1_CoordinateSystem as CoordinateSystem, THREE$1_CubeCamera as CubeCamera, THREE$1_CubeReflectionMapping as CubeReflectionMapping, THREE$1_CubeRefractionMapping as CubeRefractionMapping, THREE$1_CubeTexture as CubeTexture, THREE$1_CubeTextureLoader as CubeTextureLoader, type THREE$1_CubeTextureMapping as CubeTextureMapping, THREE$1_CubeUVReflectionMapping as CubeUVReflectionMapping, THREE$1_CubicBezier as CubicBezier, THREE$1_CubicBezierCurve as CubicBezierCurve, THREE$1_CubicBezierCurve3 as CubicBezierCurve3, THREE$1_CubicInterpolant as CubicInterpolant, type THREE$1_CullFace as CullFace, THREE$1_CullFaceBack as CullFaceBack, THREE$1_CullFaceFront as CullFaceFront, THREE$1_CullFaceFrontBack as CullFaceFrontBack, THREE$1_CullFaceNone as CullFaceNone, THREE$1_Curve as Curve, THREE$1_CurvePath as CurvePath, type THREE$1_CurveType as CurveType, THREE$1_CustomBlending as CustomBlending, THREE$1_CustomToneMapping as CustomToneMapping, THREE$1_CylinderGeometry as CylinderGeometry, THREE$1_Cylindrical as Cylindrical, THREE$1_Data3DTexture as Data3DTexture, THREE$1_DataArrayTexture as DataArrayTexture, THREE$1_DataTexture as DataTexture, THREE$1_DataTextureLoader as DataTextureLoader, DataUtils_d as DataUtils, THREE$1_DecrementStencilOp as DecrementStencilOp, THREE$1_DecrementWrapStencilOp as DecrementWrapStencilOp, type THREE$1_DeepTexturePixelFormat as DeepTexturePixelFormat, THREE$1_DefaultLoadingManager as DefaultLoadingManager, THREE$1_DepthFormat as DepthFormat, type THREE$1_DepthModes as DepthModes, type THREE$1_DepthPackingStrategies as DepthPackingStrategies, THREE$1_DepthStencilFormat as DepthStencilFormat, THREE$1_DepthTexture as DepthTexture, THREE$1_DirectionalLight as DirectionalLight, THREE$1_DirectionalLightHelper as DirectionalLightHelper, THREE$1_DirectionalLightShadow as DirectionalLightShadow, THREE$1_DiscreteInterpolant as DiscreteInterpolant, THREE$1_DisplayP3ColorSpace as DisplayP3ColorSpace, THREE$1_DodecahedronGeometry as DodecahedronGeometry, THREE$1_DoubleSide as DoubleSide, THREE$1_DstAlphaFactor as DstAlphaFactor, THREE$1_DstColorFactor as DstColorFactor, THREE$1_DynamicCopyUsage as DynamicCopyUsage, THREE$1_DynamicDrawUsage as DynamicDrawUsage, THREE$1_DynamicReadUsage as DynamicReadUsage, THREE$1_EdgesGeometry as EdgesGeometry, THREE$1_EllipseCurve as EllipseCurve, THREE$1_EqualCompare as EqualCompare, THREE$1_EqualDepth as EqualDepth, THREE$1_EqualStencilFunc as EqualStencilFunc, THREE$1_EquirectangularReflectionMapping as EquirectangularReflectionMapping, THREE$1_EquirectangularRefractionMapping as EquirectangularRefractionMapping, THREE$1_Euler as Euler, type THREE$1_EulerOrder as EulerOrder, type THREE$1_Event as Event, THREE$1_EventDispatcher as EventDispatcher, type THREE$1_EventListener as EventListener, THREE$1_ExtrudeGeometry as ExtrudeGeometry, type THREE$1_ExtrudeGeometryOptions as ExtrudeGeometryOptions, type THREE$1_Face as Face, THREE$1_FileLoader as FileLoader, THREE$1_Float16BufferAttribute as Float16BufferAttribute, THREE$1_Float32BufferAttribute as Float32BufferAttribute, THREE$1_Float64BufferAttribute as Float64BufferAttribute, THREE$1_FloatType as FloatType, THREE$1_Fog as Fog, type THREE$1_FogBase as FogBase, THREE$1_FogExp2 as FogExp2, THREE$1_FramebufferTexture as FramebufferTexture, THREE$1_FrontSide as FrontSide, THREE$1_Frustum as Frustum, THREE$1_GLBufferAttribute as GLBufferAttribute, THREE$1_GLSL1 as GLSL1, THREE$1_GLSL3 as GLSL3, type THREE$1_GLSLVersion as GLSLVersion, THREE$1_GreaterCompare as GreaterCompare, THREE$1_GreaterDepth as GreaterDepth, THREE$1_GreaterEqualCompare as GreaterEqualCompare, THREE$1_GreaterEqualDepth as GreaterEqualDepth, THREE$1_GreaterEqualStencilFunc as GreaterEqualStencilFunc, THREE$1_GreaterStencilFunc as GreaterStencilFunc, THREE$1_GridHelper as GridHelper, THREE$1_Group as Group, type THREE$1_HSL as HSL, THREE$1_HalfFloatType as HalfFloatType, THREE$1_HemisphereLight as HemisphereLight, THREE$1_HemisphereLightHelper as HemisphereLightHelper, THREE$1_HemisphereLightProbe as HemisphereLightProbe, type THREE$1_IUniform as IUniform, THREE$1_IcosahedronGeometry as IcosahedronGeometry, THREE$1_ImageBitmapLoader as ImageBitmapLoader, THREE$1_ImageLoader as ImageLoader, THREE$1_ImageUtils as ImageUtils, THREE$1_IncrementStencilOp as IncrementStencilOp, THREE$1_IncrementWrapStencilOp as IncrementWrapStencilOp, THREE$1_InstancedBufferAttribute as InstancedBufferAttribute, THREE$1_InstancedBufferGeometry as InstancedBufferGeometry, THREE$1_InstancedInterleavedBuffer as InstancedInterleavedBuffer, THREE$1_InstancedMesh as InstancedMesh, type THREE$1_InstancedMeshEventMap as InstancedMeshEventMap, THREE$1_Int16BufferAttribute as Int16BufferAttribute, THREE$1_Int32BufferAttribute as Int32BufferAttribute, THREE$1_Int8BufferAttribute as Int8BufferAttribute, THREE$1_IntType as IntType, THREE$1_InterleavedBuffer as InterleavedBuffer, THREE$1_InterleavedBufferAttribute as InterleavedBufferAttribute, THREE$1_Interpolant as Interpolant, THREE$1_InterpolateDiscrete as InterpolateDiscrete, THREE$1_InterpolateLinear as InterpolateLinear, THREE$1_InterpolateSmooth as InterpolateSmooth, type THREE$1_InterpolationEndingModes as InterpolationEndingModes, type THREE$1_InterpolationModes as InterpolationModes, type THREE$1_Intersection as Intersection, THREE$1_InvertStencilOp as InvertStencilOp, THREE$1_KeepStencilOp as KeepStencilOp, THREE$1_KeyframeTrack as KeyframeTrack, THREE$1_LOD as LOD, THREE$1_LatheGeometry as LatheGeometry, THREE$1_Layers as Layers, THREE$1_LessCompare as LessCompare, THREE$1_LessDepth as LessDepth, THREE$1_LessEqualCompare as LessEqualCompare, THREE$1_LessEqualDepth as LessEqualDepth, THREE$1_LessEqualStencilFunc as LessEqualStencilFunc, THREE$1_LessStencilFunc as LessStencilFunc, THREE$1_Light as Light, THREE$1_LightProbe as LightProbe, THREE$1_LightShadow as LightShadow, THREE$1_Line as Line, THREE$1_Line3 as Line3, THREE$1_LineBasicMaterial as LineBasicMaterial, type THREE$1_LineBasicMaterialParameters as LineBasicMaterialParameters, THREE$1_LineCurve as LineCurve, THREE$1_LineCurve3 as LineCurve3, THREE$1_LineDashedMaterial as LineDashedMaterial, type THREE$1_LineDashedMaterialParameters as LineDashedMaterialParameters, THREE$1_LineLoop as LineLoop, THREE$1_LineSegments as LineSegments, THREE$1_LinearDisplayP3ColorSpace as LinearDisplayP3ColorSpace, THREE$1_LinearEncoding as LinearEncoding, THREE$1_LinearFilter as LinearFilter, THREE$1_LinearInterpolant as LinearInterpolant, THREE$1_LinearMipMapLinearFilter as LinearMipMapLinearFilter, THREE$1_LinearMipMapNearestFilter as LinearMipMapNearestFilter, THREE$1_LinearMipmapLinearFilter as LinearMipmapLinearFilter, THREE$1_LinearMipmapNearestFilter as LinearMipmapNearestFilter, THREE$1_LinearSRGBColorSpace as LinearSRGBColorSpace, THREE$1_LinearToneMapping as LinearToneMapping, THREE$1_Loader as Loader, THREE$1_LoaderUtils as LoaderUtils, THREE$1_LoadingManager as LoadingManager, THREE$1_LoopOnce as LoopOnce, THREE$1_LoopPingPong as LoopPingPong, THREE$1_LoopRepeat as LoopRepeat, THREE$1_LuminanceAlphaFormat as LuminanceAlphaFormat, THREE$1_LuminanceFormat as LuminanceFormat, THREE$1_MOUSE as MOUSE, type THREE$1_MagnificationTextureFilter as MagnificationTextureFilter, type THREE$1_Mapping as Mapping, THREE$1_Material as Material, THREE$1_MaterialLoader as MaterialLoader, type THREE$1_MaterialParameters as MaterialParameters, MathUtils_d as MathUtils, type THREE$1_Matrix as Matrix, THREE$1_Matrix3 as Matrix3, type THREE$1_Matrix3Tuple as Matrix3Tuple, THREE$1_Matrix4 as Matrix4, type THREE$1_Matrix4Tuple as Matrix4Tuple, THREE$1_MaxEquation as MaxEquation, THREE$1_Mesh as Mesh, THREE$1_MeshBasicMaterial as MeshBasicMaterial, type THREE$1_MeshBasicMaterialParameters as MeshBasicMaterialParameters, THREE$1_MeshDepthMaterial as MeshDepthMaterial, type THREE$1_MeshDepthMaterialParameters as MeshDepthMaterialParameters, THREE$1_MeshDistanceMaterial as MeshDistanceMaterial, type THREE$1_MeshDistanceMaterialParameters as MeshDistanceMaterialParameters, THREE$1_MeshLambertMaterial as MeshLambertMaterial, type THREE$1_MeshLambertMaterialParameters as MeshLambertMaterialParameters, THREE$1_MeshMatcapMaterial as MeshMatcapMaterial, type THREE$1_MeshMatcapMaterialParameters as MeshMatcapMaterialParameters, THREE$1_MeshNormalMaterial as MeshNormalMaterial, type THREE$1_MeshNormalMaterialParameters as MeshNormalMaterialParameters, THREE$1_MeshPhongMaterial as MeshPhongMaterial, type THREE$1_MeshPhongMaterialParameters as MeshPhongMaterialParameters, THREE$1_MeshPhysicalMaterial as MeshPhysicalMaterial, type THREE$1_MeshPhysicalMaterialParameters as MeshPhysicalMaterialParameters, THREE$1_MeshStandardMaterial as MeshStandardMaterial, type THREE$1_MeshStandardMaterialParameters as MeshStandardMaterialParameters, THREE$1_MeshToonMaterial as MeshToonMaterial, type THREE$1_MeshToonMaterialParameters as MeshToonMaterialParameters, THREE$1_MinEquation as MinEquation, type THREE$1_MinificationTextureFilter as MinificationTextureFilter, THREE$1_MirroredRepeatWrapping as MirroredRepeatWrapping, THREE$1_MixOperation as MixOperation, type THREE$1_MorphTarget as MorphTarget, THREE$1_MultiplyBlending as MultiplyBlending, THREE$1_MultiplyOperation as MultiplyOperation, THREE$1_NearestFilter as NearestFilter, THREE$1_NearestMipMapLinearFilter as NearestMipMapLinearFilter, THREE$1_NearestMipMapNearestFilter as NearestMipMapNearestFilter, THREE$1_NearestMipmapLinearFilter as NearestMipmapLinearFilter, THREE$1_NearestMipmapNearestFilter as NearestMipmapNearestFilter, THREE$1_NeverCompare as NeverCompare, THREE$1_NeverDepth as NeverDepth, THREE$1_NeverStencilFunc as NeverStencilFunc, THREE$1_NoBlending as NoBlending, THREE$1_NoColorSpace as NoColorSpace, THREE$1_NoToneMapping as NoToneMapping, THREE$1_NormalAnimationBlendMode as NormalAnimationBlendMode, THREE$1_NormalBlending as NormalBlending, type THREE$1_NormalBufferAttributes as NormalBufferAttributes, type THREE$1_NormalMapTypes as NormalMapTypes, type THREE$1_NormalOrGLBufferAttributes as NormalOrGLBufferAttributes, THREE$1_NotEqualCompare as NotEqualCompare, THREE$1_NotEqualDepth as NotEqualDepth, THREE$1_NotEqualStencilFunc as NotEqualStencilFunc, THREE$1_NumberKeyframeTrack as NumberKeyframeTrack, THREE$1_Object3D as Object3D, type THREE$1_Object3DEventMap as Object3DEventMap, THREE$1_ObjectLoader as ObjectLoader, THREE$1_ObjectSpaceNormalMap as ObjectSpaceNormalMap, THREE$1_OctahedronGeometry as OctahedronGeometry, type THREE$1_OffscreenCanvas as OffscreenCanvas, THREE$1_OneFactor as OneFactor, THREE$1_OneMinusDstAlphaFactor as OneMinusDstAlphaFactor, THREE$1_OneMinusDstColorFactor as OneMinusDstColorFactor, THREE$1_OneMinusSrcAlphaFactor as OneMinusSrcAlphaFactor, THREE$1_OneMinusSrcColorFactor as OneMinusSrcColorFactor, THREE$1_OrthographicCamera as OrthographicCamera, THREE$1_PCFShadowMap as PCFShadowMap, THREE$1_PCFSoftShadowMap as PCFSoftShadowMap, THREE$1_PMREMGenerator as PMREMGenerator, type THREE$1_ParseTrackNameResults as ParseTrackNameResults, THREE$1_Path as Path, THREE$1_PerspectiveCamera as PerspectiveCamera, type THREE$1_PixelFormat as PixelFormat, type THREE$1_PixelFormatGPU as PixelFormatGPU, THREE$1_Plane as Plane, THREE$1_PlaneGeometry as PlaneGeometry, THREE$1_PlaneHelper as PlaneHelper, THREE$1_PointLight as PointLight, THREE$1_PointLightHelper as PointLightHelper, THREE$1_PointLightShadow as PointLightShadow, THREE$1_Points as Points, THREE$1_PointsMaterial as PointsMaterial, type THREE$1_PointsMaterialParameters as PointsMaterialParameters, THREE$1_PolarGridHelper as PolarGridHelper, THREE$1_PolyhedronGeometry as PolyhedronGeometry, THREE$1_PositionalAudio as PositionalAudio, THREE$1_PropertyBinding as PropertyBinding, THREE$1_PropertyMixer as PropertyMixer, THREE$1_QuadraticBezier as QuadraticBezier, THREE$1_QuadraticBezierCurve as QuadraticBezierCurve, THREE$1_QuadraticBezierCurve3 as QuadraticBezierCurve3, THREE$1_Quaternion as Quaternion, THREE$1_QuaternionKeyframeTrack as QuaternionKeyframeTrack, THREE$1_QuaternionLinearInterpolant as QuaternionLinearInterpolant, THREE$1_RED_GREEN_RGTC2_Format as RED_GREEN_RGTC2_Format, THREE$1_RED_RGTC1_Format as RED_RGTC1_Format, THREE$1_REVISION as REVISION, type THREE$1_RGB as RGB, THREE$1_RGBADepthPacking as RGBADepthPacking, THREE$1_RGBAFormat as RGBAFormat, THREE$1_RGBAIntegerFormat as RGBAIntegerFormat, THREE$1_RGBA_ASTC_10x10_Format as RGBA_ASTC_10x10_Format, THREE$1_RGBA_ASTC_10x5_Format as RGBA_ASTC_10x5_Format, THREE$1_RGBA_ASTC_10x6_Format as RGBA_ASTC_10x6_Format, THREE$1_RGBA_ASTC_10x8_Format as RGBA_ASTC_10x8_Format, THREE$1_RGBA_ASTC_12x10_Format as RGBA_ASTC_12x10_Format, THREE$1_RGBA_ASTC_12x12_Format as RGBA_ASTC_12x12_Format, THREE$1_RGBA_ASTC_4x4_Format as RGBA_ASTC_4x4_Format, THREE$1_RGBA_ASTC_5x4_Format as RGBA_ASTC_5x4_Format, THREE$1_RGBA_ASTC_5x5_Format as RGBA_ASTC_5x5_Format, THREE$1_RGBA_ASTC_6x5_Format as RGBA_ASTC_6x5_Format, THREE$1_RGBA_ASTC_6x6_Format as RGBA_ASTC_6x6_Format, THREE$1_RGBA_ASTC_8x5_Format as RGBA_ASTC_8x5_Format, THREE$1_RGBA_ASTC_8x6_Format as RGBA_ASTC_8x6_Format, THREE$1_RGBA_ASTC_8x8_Format as RGBA_ASTC_8x8_Format, THREE$1_RGBA_BPTC_Format as RGBA_BPTC_Format, THREE$1_RGBA_ETC2_EAC_Format as RGBA_ETC2_EAC_Format, THREE$1_RGBA_PVRTC_2BPPV1_Format as RGBA_PVRTC_2BPPV1_Format, THREE$1_RGBA_PVRTC_4BPPV1_Format as RGBA_PVRTC_4BPPV1_Format, THREE$1_RGBA_S3TC_DXT1_Format as RGBA_S3TC_DXT1_Format, THREE$1_RGBA_S3TC_DXT3_Format as RGBA_S3TC_DXT3_Format, THREE$1_RGBA_S3TC_DXT5_Format as RGBA_S3TC_DXT5_Format, THREE$1_RGB_BPTC_SIGNED_Format as RGB_BPTC_SIGNED_Format, THREE$1_RGB_BPTC_UNSIGNED_Format as RGB_BPTC_UNSIGNED_Format, THREE$1_RGB_ETC1_Format as RGB_ETC1_Format, THREE$1_RGB_ETC2_Format as RGB_ETC2_Format, THREE$1_RGB_PVRTC_2BPPV1_Format as RGB_PVRTC_2BPPV1_Format, THREE$1_RGB_PVRTC_4BPPV1_Format as RGB_PVRTC_4BPPV1_Format, THREE$1_RGB_S3TC_DXT1_Format as RGB_S3TC_DXT1_Format, THREE$1_RGFormat as RGFormat, THREE$1_RGIntegerFormat as RGIntegerFormat, THREE$1_RawShaderMaterial as RawShaderMaterial, THREE$1_Ray as Ray, THREE$1_Raycaster as Raycaster, type THREE$1_RaycasterParameters as RaycasterParameters, THREE$1_RectAreaLight as RectAreaLight, THREE$1_RedFormat as RedFormat, THREE$1_RedIntegerFormat as RedIntegerFormat, THREE$1_ReinhardToneMapping as ReinhardToneMapping, type THREE$1_RenderItem as RenderItem, THREE$1_RenderTarget as RenderTarget, type THREE$1_RenderTargetOptions as RenderTargetOptions, type THREE$1_Renderer as Renderer, THREE$1_RepeatWrapping as RepeatWrapping, THREE$1_ReplaceStencilOp as ReplaceStencilOp, THREE$1_ReverseSubtractEquation as ReverseSubtractEquation, THREE$1_RingGeometry as RingGeometry, THREE$1_SIGNED_RED_GREEN_RGTC2_Format as SIGNED_RED_GREEN_RGTC2_Format, THREE$1_SIGNED_RED_RGTC1_Format as SIGNED_RED_RGTC1_Format, THREE$1_SRGBColorSpace as SRGBColorSpace, THREE$1_SRGBToLinear as SRGBToLinear, THREE$1_Scene as Scene, type THREE$1_Shader as Shader, THREE$1_ShaderChunk as ShaderChunk, THREE$1_ShaderLib as ShaderLib, THREE$1_ShaderMaterial as ShaderMaterial, type THREE$1_ShaderMaterialParameters as ShaderMaterialParameters, type THREE$1_ShadowMapType as ShadowMapType, THREE$1_ShadowMaterial as ShadowMaterial, type THREE$1_ShadowMaterialParameters as ShadowMaterialParameters, THREE$1_Shape as Shape, THREE$1_ShapeGeometry as ShapeGeometry, THREE$1_ShapePath as ShapePath, THREE$1_ShapeUtils as ShapeUtils, THREE$1_ShortType as ShortType, type THREE$1_Side as Side, THREE$1_Skeleton as Skeleton, THREE$1_SkeletonHelper as SkeletonHelper, THREE$1_SkinnedMesh as SkinnedMesh, THREE$1_Source as Source, THREE$1_Sphere as Sphere, THREE$1_SphereGeometry as SphereGeometry, THREE$1_Spherical as Spherical, THREE$1_SphericalHarmonics3 as SphericalHarmonics3, THREE$1_SplineCurve as SplineCurve, THREE$1_SpotLight as SpotLight, THREE$1_SpotLightHelper as SpotLightHelper, THREE$1_SpotLightShadow as SpotLightShadow, THREE$1_Sprite as Sprite, THREE$1_SpriteMaterial as SpriteMaterial, type THREE$1_SpriteMaterialParameters as SpriteMaterialParameters, THREE$1_SrcAlphaFactor as SrcAlphaFactor, THREE$1_SrcAlphaSaturateFactor as SrcAlphaSaturateFactor, THREE$1_SrcColorFactor as SrcColorFactor, THREE$1_StaticCopyUsage as StaticCopyUsage, THREE$1_StaticDrawUsage as StaticDrawUsage, THREE$1_StaticReadUsage as StaticReadUsage, type THREE$1_StencilFunc as StencilFunc, type THREE$1_StencilOp as StencilOp, THREE$1_StereoCamera as StereoCamera, THREE$1_StreamCopyUsage as StreamCopyUsage, THREE$1_StreamDrawUsage as StreamDrawUsage, THREE$1_StreamReadUsage as StreamReadUsage, THREE$1_StringKeyframeTrack as StringKeyframeTrack, THREE$1_SubtractEquation as SubtractEquation, THREE$1_SubtractiveBlending as SubtractiveBlending, THREE$1_TOUCH as TOUCH, THREE$1_TangentSpaceNormalMap as TangentSpaceNormalMap, THREE$1_TetrahedronGeometry as TetrahedronGeometry, THREE$1_Texture as Texture, type THREE$1_TextureComparisonFunction as TextureComparisonFunction, type THREE$1_TextureDataType as TextureDataType, type THREE$1_TextureEncoding as TextureEncoding, type THREE$1_TextureFilter as TextureFilter, THREE$1_TextureLoader as TextureLoader, type THREE$1_ToneMapping as ToneMapping, THREE$1_TorusGeometry as TorusGeometry, THREE$1_TorusKnotGeometry as TorusKnotGeometry, THREE$1_Triangle as Triangle, THREE$1_TriangleFanDrawMode as TriangleFanDrawMode, THREE$1_TriangleStripDrawMode as TriangleStripDrawMode, THREE$1_TrianglesDrawMode as TrianglesDrawMode, type THREE$1_TrianglesDrawModes as TrianglesDrawModes, THREE$1_TubeGeometry as TubeGeometry, THREE$1_TwoPassDoubleSide as TwoPassDoubleSide, type THREE$1_TypedArray as TypedArray, type THREE$1_UVGenerator as UVGenerator, THREE$1_UVMapping as UVMapping, THREE$1_Uint16BufferAttribute as Uint16BufferAttribute, THREE$1_Uint32BufferAttribute as Uint32BufferAttribute, THREE$1_Uint8BufferAttribute as Uint8BufferAttribute, THREE$1_Uint8ClampedBufferAttribute as Uint8ClampedBufferAttribute, THREE$1_Uniform as Uniform, THREE$1_UniformsGroup as UniformsGroup, THREE$1_UniformsLib as UniformsLib, THREE$1_UniformsUtils as UniformsUtils, THREE$1_UnsignedByteType as UnsignedByteType, THREE$1_UnsignedInt248Type as UnsignedInt248Type, THREE$1_UnsignedIntType as UnsignedIntType, THREE$1_UnsignedShort4444Type as UnsignedShort4444Type, THREE$1_UnsignedShort5551Type as UnsignedShort5551Type, THREE$1_UnsignedShortType as UnsignedShortType, type THREE$1_Usage as Usage, THREE$1_VSMShadowMap as VSMShadowMap, type THREE$1_Vec2 as Vec2, type THREE$1_Vector as Vector, THREE$1_Vector2 as Vector2, type THREE$1_Vector2Tuple as Vector2Tuple, THREE$1_Vector3 as Vector3, type THREE$1_Vector3Tuple as Vector3Tuple, THREE$1_Vector4 as Vector4, type THREE$1_Vector4Tuple as Vector4Tuple, THREE$1_VectorKeyframeTrack as VectorKeyframeTrack, THREE$1_VideoTexture as VideoTexture, type THREE$1_WebGL1PixelFormat as WebGL1PixelFormat, THREE$1_WebGL1Renderer as WebGL1Renderer, type THREE$1_WebGL2PixelFormat as WebGL2PixelFormat, THREE$1_WebGL3DRenderTarget as WebGL3DRenderTarget, THREE$1_WebGLArrayRenderTarget as WebGLArrayRenderTarget, THREE$1_WebGLBufferRenderer as WebGLBufferRenderer, THREE$1_WebGLCapabilities as WebGLCapabilities, type THREE$1_WebGLCapabilitiesParameters as WebGLCapabilitiesParameters, THREE$1_WebGLClipping as WebGLClipping, THREE$1_WebGLColorBuffer as WebGLColorBuffer, THREE$1_WebGLCoordinateSystem as WebGLCoordinateSystem, THREE$1_WebGLCubeRenderTarget as WebGLCubeRenderTarget, THREE$1_WebGLCubeUVMaps as WebGLCubeUVMaps, type THREE$1_WebGLDebug as WebGLDebug, THREE$1_WebGLDepthBuffer as WebGLDepthBuffer, THREE$1_WebGLExtensions as WebGLExtensions, THREE$1_WebGLGeometries as WebGLGeometries, THREE$1_WebGLIndexedBufferRenderer as WebGLIndexedBufferRenderer, THREE$1_WebGLInfo as WebGLInfo, THREE$1_WebGLLights as WebGLLights, THREE$1_WebGLMultipleRenderTargets as WebGLMultipleRenderTargets, THREE$1_WebGLObjects as WebGLObjects, THREE$1_WebGLProgram as WebGLProgram, THREE$1_WebGLPrograms as WebGLPrograms, THREE$1_WebGLProperties as WebGLProperties, THREE$1_WebGLRenderList as WebGLRenderList, THREE$1_WebGLRenderLists as WebGLRenderLists, THREE$1_WebGLRenderTarget as WebGLRenderTarget, type THREE$1_WebGLRenderTargetOptions as WebGLRenderTargetOptions, THREE$1_WebGLRenderer as WebGLRenderer, type THREE$1_WebGLRendererParameters as WebGLRendererParameters, WebGLShader$1 as WebGLShader, THREE$1_WebGLShadowMap as WebGLShadowMap, THREE$1_WebGLState as WebGLState, THREE$1_WebGLStencilBuffer as WebGLStencilBuffer, THREE$1_WebGLTextures as WebGLTextures, THREE$1_WebGLUniforms as WebGLUniforms, THREE$1_WebGLUniformsGroups as WebGLUniformsGroups, THREE$1_WebGLUtils as WebGLUtils, THREE$1_WebGPUCoordinateSystem as WebGPUCoordinateSystem, type THREE$1_WebXRArrayCamera as WebXRArrayCamera, type THREE$1_WebXRCamera as WebXRCamera, THREE$1_WebXRController as WebXRController, THREE$1_WebXRManager as WebXRManager, type THREE$1_WebXRManagerEventMap as WebXRManagerEventMap, type THREE$1_WebXRSpaceEventMap as WebXRSpaceEventMap, THREE$1_WireframeGeometry as WireframeGeometry, THREE$1_WrapAroundEnding as WrapAroundEnding, type THREE$1_Wrapping as Wrapping, type THREE$1_XRControllerEventType as XRControllerEventType, THREE$1_XRGripSpace as XRGripSpace, type THREE$1_XRHandInputState as XRHandInputState, type THREE$1_XRHandJoints as XRHandJoints, THREE$1_XRHandSpace as XRHandSpace, THREE$1_XRJointSpace as XRJointSpace, THREE$1_XRTargetRaySpace as XRTargetRaySpace, THREE$1_ZeroCurvatureEnding as ZeroCurvatureEnding, THREE$1_ZeroFactor as ZeroFactor, THREE$1_ZeroSlopeEnding as ZeroSlopeEnding, THREE$1_ZeroStencilOp as ZeroStencilOp, THREE$1__SRGBAFormat as _SRGBAFormat, THREE$1_cloneUniforms as cloneUniforms, THREE$1_cloneUniformsGroups as cloneUniformsGroups, THREE$1_createCanvasElement as createCanvasElement, THREE$1_mergeUniforms as mergeUniforms, THREE$1_sRGBEncoding as sRGBEncoding };
 }
 
-interface Get3dClickEventTargetsParams {
-    scene: Scene;
-    camera: Camera;
-    event: MouseEvent;
-}
-interface CreateControlsParams {
-    scene: Scene;
-    camera: Camera;
-    element: HTMLElement | null;
+interface AddControlsParams {
     callback?: (scene: Scene, camera: Camera) => void;
+}
+interface CreateAxesHelperParams {
+    length?: number;
+}
+interface CreateLightParams {
+    color?: number | string;
+    colorOpacity?: number;
+    ambientLightColor?: number | string;
+    ambientLightColorOpacity?: number;
+    directLightColor?: number | string;
+    directLightColorOpacity?: number;
+}
+interface CreateCameraParams {
+    width?: number;
+    height?: number;
+    position?: {
+        x: number;
+        y: number;
+        z: number;
+    };
+    lookAt?: {
+        x: number;
+        y: number;
+        z: number;
+    };
+}
+interface CreateRendererParams {
+    width?: number;
+    height?: number;
+    backgroundColor?: number | string;
+    backgroundColorOpacity?: number;
+}
+type InitParams = {
+    lightConfigs?: CreateLightParams;
+    cameraConfigs?: CreateCameraParams;
+    axesHelperConfigs?: CreateAxesHelperParams;
+    rendererConfigs?: CreateRendererParams;
+} | null;
+interface CreateCss3dObjectParams {
+    element: HTMLElement;
+}
+interface InitCss3dParams {
+    scene: Scene;
+    camera: Camera;
+}
+interface CreateTextParams {
+    text: string;
+    color?: number | string;
+    fontSize?: number;
+    thickness?: number;
+    position?: {
+        x: number;
+        y: number;
+        z: number;
+    };
 }
 
 declare class KTX2Loader extends CompressedTextureLoader {
@@ -19565,22 +17671,20 @@ interface GLTFLoaderPlugin {
 
 interface LoadGLTFParams {
     modelPath: string;
-    options: CommonModelOptions;
+    options?: CommonModelOptions;
     callback?: (gltf: GLTF, model: THREE.Group<THREE.Object3DEventMap>) => void;
 }
 
-declare const lec3d: {
-    THREE: typeof THREE$1;
-    loadGLTF: ({ modelPath, options, callback }: LoadGLTFParams) => void;
-    get3dClickEventTargets: ({ scene, camera, event, }: Get3dClickEventTargetsParams) => Intersection<Object3D<Object3DEventMap>>[];
-    createControls: ({ scene, camera, element, callback, }: CreateControlsParams) => void;
-    init: () => {
-        renderer: WebGLRenderer;
-        camera: PerspectiveCamera;
-        scene: Scene;
-        mountTo: (element: HTMLElement) => void;
-        refresh: () => void;
-    };
+/** 导入 GLTF 文件 */
+declare const loadGLTF: ({ modelPath, options, callback }: LoadGLTFParams) => void;
+
+/** 创建基本三维场景 */
+declare const init: () => {
+    renderer: WebGLRenderer;
+    camera: PerspectiveCamera;
+    scene: Scene;
 };
+/** 鼠标点击，获取点击射线穿透的所有物体 */
+declare const get3dClickEventTargets: ({ scene, camera, event, }: Get3dClickEventTargetsParams) => Intersection<Object3D<Object3DEventMap>>[];
 
 export { lec3d as default };

@@ -1,11 +1,12 @@
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
-// TODO: 当前先只实现导入 GLTF 文件，后面要用别的类型再加
-import * as THREE from "three";
+import { transferRotationValue } from "../utils.js";
+// TODO: 当前先只实现导入 GLTF 文件，后续再实现其他类型的文件
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { LoadGLTFParams } from "./type";
 // import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 // import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
 // import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import * as THREE from "three";
 
 /** 导入 GLTF 文件 */
 export const loadGLTF = ({ modelPath, options, callback }: LoadGLTFParams) => {
@@ -16,13 +17,19 @@ export const loadGLTF = ({ modelPath, options, callback }: LoadGLTFParams) => {
   gltfLoader.load(modelPath, (gltf: GLTF) => {
     const model = gltf.scene;
 
-    const x = options?.position?.x ?? 0;
-    const y = options?.position?.y ?? 0;
-    const z = options?.position?.z ?? 0;
+    const posX = options?.position?.x ?? 0;
+    const posY = options?.position?.y ?? 0;
+    const posZ = options?.position?.z ?? 0;
     const scale = options?.scale ?? 1;
+    const rotX = transferRotationValue(options?.rotation?.x);
+    const rotY = transferRotationValue(options?.rotation?.y);
+    const rotZ = transferRotationValue(options?.rotation?.z);
 
-    model.position.set(x, y, z);
+    model.position.set(posX, posY, posZ);
     model.scale.set(scale, scale, scale);
+    model.rotateX(rotX);
+    model.rotateY(rotY);
+    model.rotateZ(rotZ);
 
     callback?.(gltf, model);
   });

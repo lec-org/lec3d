@@ -1,6 +1,6 @@
 {
   "name": "@trickle/lec3d",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "easier three.js encapsulated by lec",
   "main": "dist/index.js",
   "publishConfig": {
@@ -29,8 +29,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lec-org/lec3d.git"
+    "url": "https://github.com/lec-org/lec3d.git"
   },
+  "homepage": "https://github.com/lec-org/lec3d",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.23.0",
@@ -63,6 +64,6 @@
     "three": "^0.157.0"
   },
   "files": [
-    "src/index.ts"
+    "dist"
   ]
 }
