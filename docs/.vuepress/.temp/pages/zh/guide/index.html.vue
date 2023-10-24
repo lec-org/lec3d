@@ -1,5 +1,43 @@
 <template><div><h1 id="指南" tabindex="-1"><a class="header-anchor" href="#指南" aria-hidden="true">#</a> 指南</h1>
 <h2 id="lec3d是什么" tabindex="-1"><a class="header-anchor" href="#lec3d是什么" aria-hidden="true">#</a> lec3d是什么</h2>
+<p>我们只是要一个 3d 场景，学那么多东西成本可太高了！
+所以我们基于 three.js 封装了一个用于快速搭建 3d 场景的库，并且它是不限框架的！</p>
+<blockquote>
+<p>目前我们在 <code v-pre>Vue</code>，<code v-pre>React</code>，<code v-pre>Svelte</code> 上都有做实践！</p>
+</blockquote>
+<h2 id="快速开始" tabindex="-1"><a class="header-anchor" href="#快速开始" aria-hidden="true">#</a> 快速开始</h2>
+<div class="language-bash line-numbers-mode" data-ext="sh"><pre v-pre class="language-bash"><code><span class="token function">npm</span> i @trickle/lec3d
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code><span class="token keyword">import</span> lec3d <span class="token keyword">from</span> <span class="token string">"@trickle/lec3d"</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token punctuation">{</span> scene<span class="token punctuation">,</span> renderer<span class="token punctuation">,</span> camera<span class="token punctuation">,</span> mountTo<span class="token punctuation">,</span> refresh<span class="token punctuation">,</span> addControls <span class="token punctuation">}</span> <span class="token operator">=</span> lec3d<span class="token punctuation">.</span><span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token literal-property property">axesHelperConfigs</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">length</span><span class="token operator">:</span> <span class="token number">10000</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+<span class="token comment">// 添加鼠标控制，缩放、旋转等</span>
+<span class="token keyword">const</span> controls <span class="token operator">=</span> <span class="token function">addControls</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment">// 导入 GLTF 3d 模型文件</span>
+lec3d<span class="token punctuation">.</span><span class="token function">loadGLTF</span><span class="token punctuation">(</span><span class="token punctuation">{</span> 
+  <span class="token literal-property property">modelPath</span><span class="token operator">:</span> <span class="token string">'your_file.gltf'</span><span class="token punctuation">,</span> 
+  <span class="token literal-property property">options</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">scale</span><span class="token operator">:</span> <span class="token number">30</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">position</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">x</span><span class="token operator">:</span> <span class="token number">100</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">rotation</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">x</span><span class="token operator">:</span> <span class="token string">'30'</span><span class="token punctuation">,</span> <span class="token comment">// 字符串数字代表角度，即 30 度</span>
+      <span class="token literal-property property">z</span><span class="token operator">:</span> <span class="token operator">-</span><span class="token number">0.5</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> 
+  <span class="token function-variable function">callback</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">gltf<span class="token punctuation">,</span> model</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token comment">// 添加到场景中</span>
+    scene<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>model<span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+<span class="token comment">// 挂载到一个 DOM 元素上</span>
+<span class="token function">mountTo</span><span class="token punctuation">(</span>your_dom<span class="token punctuation">)</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="贡献和维护" tabindex="-1"><a class="header-anchor" href="#贡献和维护" aria-hidden="true">#</a> 贡献和维护</h2>
 </div></template>
 
 

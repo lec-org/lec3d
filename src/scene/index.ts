@@ -111,3 +111,20 @@ export const initCss3d = ({ scene, camera }: InitCss3dParams) => {
     createText,
   };
 };
+
+/** 创建控制，如鼠标操作等 */
+export const createControls = ({
+  scene,
+  camera,
+  element,
+  callback,
+}: CreateControlsParams) => {
+  if (!element) {
+    throw "error: no container element!";
+  }
+  const controls = new OrbitControls(camera, element);
+  controls.addEventListener("change", () => {
+    // renderer.render(scene, camera);
+    callback?.(scene, camera);
+  });
+};

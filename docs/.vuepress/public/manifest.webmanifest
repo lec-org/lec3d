@@ -1,7 +1,7 @@
 {
   "name": "lec3d",
-  "short_name": "Mud",
-  "description": "Mini UI-Build Dependency",
+  "short_name": "lec3d",
+  "description": "quickly build 3D front-end",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#fff",
