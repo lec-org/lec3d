@@ -13,14 +13,7 @@ title: API
 参数：TODO
 返回值：TODO
 
-```js
-import lec3d from "@trickle/lec3d";
-const { scene, renderer, camera, mountTo, refresh, addControls } = lec3d.init({
-  axesHelperConfigs: {
-    length: 10000
-  }
-})
-```
+@[code js](../../components/init/index.js)
 
 
 ## 模型
@@ -32,24 +25,7 @@ const { scene, renderer, camera, mountTo, refresh, addControls } = lec3d.init({
 参数: TODO
 返回值：TODO
 
-```js
-lec3d.loadGLTF({ 
-  modelPath: '3d_model/scene.gltf', 
-  options: {
-    scale: 30,
-    position: {
-      x: 100,
-      y: 100
-    },
-    rotation: {
-      x: '30', // 字符串数字代表角度，即 30 度
-      z: -0.5
-    },
-  }, 
-  callback: (gltf, model) => {
-    scene.add(model)
-}})
-```
+@[code js](../../components/loadGLTF/index.js)
 
 
 
