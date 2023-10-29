@@ -17,41 +17,7 @@ title: 参考文档
 ```bash
 npm i @trickle/lec3d
 ```
-
-```js
-import lec3d from "@trickle/lec3d";
-const { scene, renderer, camera, mountTo, refresh, addControls } = lec3d.init({
-  axesHelperConfigs: {
-    length: 10000
-  }
-})
-
-// 添加鼠标控制，缩放、旋转等
-const controls = addControls()
-
-// 导入 GLTF 3d 模型文件
-lec3d.loadGLTF({ 
-  modelPath: 'your_file.gltf', 
-  options: {
-    scale: 30,
-    position: {
-      x: 100,
-    },
-    rotation: {
-      x: '30', // 字符串数字代表角度，即 30 度
-      z: -0.5
-    },
-  }, 
-  callback: (gltf, model) => {
-    // 添加到场景中
-    scene.add(model)
-}})
-
-// 挂载到一个 DOM 元素上
-mountTo(your_dom)
-```
-
-
+@[code js](../../components/init/index.js)
 
 ## 贡献和维护
 

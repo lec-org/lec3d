@@ -1,6 +1,6 @@
 <h1 align="center"> 🎉lec3d🎈</h1>
 
-基于three.js进行封装, 用于快速高效地搭建3d场景的JS库
+基于three.js进行封装, 用于快速高效地搭建3D场景的JS库
 
 > lec3d 是一个JS库，不限制开发框架
 >
