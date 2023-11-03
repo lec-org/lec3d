@@ -4,7 +4,7 @@ import {
   CSS3DObject,
   CSS3DSprite,
 } from "three/examples/jsm/renderers/CSS3DRenderer.js";
-import { Renderer } from "../type";
+import { Camera, Renderer } from "../type";
 import {
   CreateAxesHelperParams,
   CreateCameraParams,
@@ -14,11 +14,16 @@ import {
   CreateTextParams,
   CreateRendererParams,
   SceneAddParams,
+  CreateCss2dRendererParams,
+  CreateCss2dObjectParams,
 } from "./type";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 import helvetikerRegular from "three/examples/fonts/helvetiker_regular.typeface.json";
-
+import {
+  CSS2DRenderer,
+  CSS2DObject,
+} from "three/examples/jsm/renderers/CSS2DRenderer.js";
 /** 创建场景 */
 export const createScene = () => {
   const scene = new THREE.Scene();
@@ -59,13 +64,19 @@ export const createCamera = ({
   position = { x: 200, y: 150, z: 200 },
   lookAt = { x: 0, y: 0, z: 0 },
 }: CreateCameraParams) => {
-  const camera = new THREE.PerspectiveCamera(45, width / height, 1, 20000);
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    width / height,
+    1,
+    20000
+  ) as Camera;
 
   //设置相机位置
   camera.position.set(position.x, position.y, position.z);
   //设置相机方向
   camera.lookAt(lookAt.x, lookAt.y, lookAt.z);
 
+  // TODO：类型 PerspectiveCamera 报错称没有 position 属性，后续尝试给 threejs 官方反馈一下
   return camera;
 };
 
@@ -110,20 +121,20 @@ export const createCss3dRenderer = ({
   scene,
   camera,
 }: CreateCss3dRendererParams) => {
-  const css3Renderer = new CSS3DRenderer();
-  css3Renderer.setSize(window.innerWidth, window.innerHeight);
-  css3Renderer.domElement.style.position = "absolute";
-  css3Renderer.domElement.style.top = "0px";
-  css3Renderer.domElement.style.left = "0px";
-  css3Renderer.domElement.style.pointerEvents = "none";
+  const css3dRenderer = new CSS3DRenderer();
+  css3dRenderer.setSize(window.innerWidth, window.innerHeight);
+  css3dRenderer.domElement.style.position = "absolute";
+  css3dRenderer.domElement.style.top = "0px";
+  css3dRenderer.domElement.style.left = "0px";
+  css3dRenderer.domElement.style.pointerEvents = "none";
   // 渲染
   const refresh = () => {
-    css3Renderer.render(scene, camera);
+    css3dRenderer.render(scene, camera);
   };
 
   // 挂载
   const mountTo = (element: HTMLElement) => {
-    element.appendChild(css3Renderer.domElement);
+    element.appendChild(css3dRenderer.domElement);
   };
 
   return {
@@ -176,4 +187,47 @@ export const createText = ({
   const textMesh = new THREE.Mesh(textGeometry, material);
   textMesh.position.set(position.x, position.y, position.z);
   return textMesh;
+};
+
+/** 创建 css 2D 渲染器 */
+export const createCss2dRenderer = ({
+  scene,
+  camera,
+}: CreateCss2dRendererParams) => {
+  const css2dRenderer = new CSS2DRenderer();
+  css2dRenderer.setSize(window.innerWidth, innerHeight);
+  document.body.appendChild(css2dRenderer.domElement);
+  css2dRenderer.domElement.style.position = "absolute";
+  css2dRenderer.domElement.style.top = "0px";
+  css2dRenderer.domElement.style.left = "0px";
+  css2dRenderer.domElement.style.zIndex = "0";
+  css2dRenderer.domElement.style.pointerEvents = "none";
+
+  // 渲染
+  const refresh = () => {
+    css2dRenderer.render(scene, camera);
+  };
+
+  // 挂载
+  const mountTo = (element: HTMLElement) => {
+    element.appendChild(css2dRenderer.domElement);
+  };
+
+  return {
+    refresh,
+    mountTo,
+  };
+};
+
+/** 创建 css 2d 对象 */
+export const createCss2dObject = ({ content }: CreateCss2dObjectParams) => {
+  let formattedContent = content;
+  if (typeof content === "string") {
+    const domParser = new DOMParser();
+    formattedContent = domParser.parseFromString(content, "text/html").body;
+  }
+
+  const css2dObject = new CSS2DObject(formattedContent as HTMLElement);
+  css2dObject.position.set(0, 0, 0);
+  return css2dObject;
 };

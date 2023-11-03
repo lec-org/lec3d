@@ -34,3 +34,6 @@ export const loadGLTF = ({ modelPath, options, callback }: LoadGLTFParams) => {
     callback?.(gltf, model);
   });
 };
+
+/** 卸载模型 */
+export const unloadModel = () => {};
