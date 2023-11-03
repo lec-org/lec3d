@@ -64,7 +64,12 @@ export const createCamera = ({
   position = { x: 200, y: 150, z: 200 },
   lookAt = { x: 0, y: 0, z: 0 },
 }: CreateCameraParams) => {
-  const camera = new THREE.PerspectiveCamera(45, width / height, 1, 20000);
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    width / height,
+    1,
+    20000
+  ) as Camera;
 
   //设置相机位置
   camera.position.set(position.x, position.y, position.z);
@@ -72,7 +77,7 @@ export const createCamera = ({
   camera.lookAt(lookAt.x, lookAt.y, lookAt.z);
 
   // TODO：类型 PerspectiveCamera 报错称没有 position 属性，后续尝试给 threejs 官方反馈一下
-  return camera as Camera;
+  return camera;
 };
 
 /** 创建渲染器 */

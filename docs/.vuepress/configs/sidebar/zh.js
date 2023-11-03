@@ -1,10 +1,14 @@
 export const sidebarZh = {
-  '/zh/guide/': [
+  "/zh/guide/": [
     {
-      text: '',
-      children: [
-        '/zh/guide/README.md',
-      ],
+      text: "",
+      children: ["/zh/guide/README.md"],
+    },
+  ],
+  "/zh/api/": [
+    {
+      text: "API",
+      children: ["/zh/api/README.md"],
     },
   ],
   // '/zh/advanced/': [

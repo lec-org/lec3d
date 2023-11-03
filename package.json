@@ -1,6 +1,6 @@
 {
   "name": "@trickle/lec3d",
-  "version": "0.0.4-beta.1",
+  "version": "0.0.4-beta.3",
   "description": "easier three.js encapsulated by lec",
   "main": "dist/index.js",
   "publishConfig": {
@@ -50,6 +50,7 @@
     "conventional-changelog-cli": "^4.1.0",
     "conventional-changelog-custom-config": "^0.3.1",
     "esbuild": "^0.19.4",
+    "highlight.js": "^11.9.0",
     "lint-staged": "^14.0.1",
     "rimraf": "^5.0.5",
     "rollup": "^4.0.2",

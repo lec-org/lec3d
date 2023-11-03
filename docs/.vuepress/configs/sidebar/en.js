@@ -1,10 +1,14 @@
 export const sidebarEn = {
-  '/guide/': [
+  "/guide/": [
     {
-      text: 'Guide',
-      children: [
-        '/guide/README.md',
-      ],
+      text: "Guide",
+      children: ["/guide/README.md"],
+    },
+  ],
+  "/api/": [
+    {
+      text: "API",
+      children: ["/api/README.md"],
     },
   ],
   // '/advanced/': [

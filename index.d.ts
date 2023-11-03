@@ -10833,6 +10833,7 @@ interface CreateTextParams {
 interface CreateCss2dObjectParams {
     content: string | HTMLElement;
     style: Record<string, any>;
+    occludable: boolean;
 }
 
 declare class KTX2Loader extends CompressedTextureLoader {

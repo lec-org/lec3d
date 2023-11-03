@@ -113,4 +113,5 @@ export type CreateCss2dRendererParams = CreateCss3dRendererParams;
 export interface CreateCss2dObjectParams {
   content: string | HTMLElement;
   style: Record<string, any>;
+  occludable: boolean;
 }

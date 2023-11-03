@@ -134,7 +134,9 @@ export const initCss2d = ({ scene, camera }: InitCss2dParams) => {
   const wrappedCreateCss2dObject = (params: CreateCss2dObjectParams) => {
     // TODO: 删除对象后，考虑如何移出观察者队列
     const css2dObject = createCss2dObject(params);
-    css2dObjectList.push(css2dObject);
+    if (params.occludable) {
+      css2dObjectList.push(css2dObject);
+    }
     return css2dObject;
   };
 
@@ -156,9 +158,6 @@ export const initCss2d = ({ scene, camera }: InitCss2dParams) => {
 
     // 从镜头处发射向量
     raycaster.setFromCamera(object2dPosition, camera);
-    // .filter((v) => {
-    //   return v instanceof THREE.Group;
-    // });
 
     scene.children?.forEach((child) => {
       if (child instanceof Group) {
@@ -188,10 +187,12 @@ export const initCss2d = ({ scene, camera }: InitCss2dParams) => {
   // TODO: 这个方法可以暴露，给用户操作
   // 对所有模型进行射线投影, 处理遮挡效果
   const handleOcclusionVisibility = () => {
-    const raycaster = new THREE.Raycaster();
+    // TODO: 这里或许可以优化为单例模式的
+    let raycaster = new THREE.Raycaster();
     css2dObjectList.forEach((obj) => {
       raycasterCollisionDetect(raycaster, obj);
     });
+    raycaster = null as any;
   };
 
   const __autoRefresh = () => {
