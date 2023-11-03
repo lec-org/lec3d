@@ -28,7 +28,7 @@ import { CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer";
 import { Group, Raycaster, Vector2 } from "three";
 
 /** 创建基本三维场景 */
-export const init = (params: InitParams) => {
+export const init = (params: InitParams): InitReturns => {
   // TODO: 完善 createScene 的自定义参数支持
   // 创建场景
   const scene = createScene();
@@ -70,7 +70,7 @@ export const init = (params: InitParams) => {
   };
 
   // 射线拾取，鼠标点击，获取点击射线穿透的所有物体
-  const getClickEventTargets = (event: MouseEvent): InitReturns => {
+  const getClickEventTargets = (event: MouseEvent) => {
     const meshArr: Array<THREE.Object3D<THREE.Object3DEventMap>> = [];
     const pointer = new THREE.Vector2();
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -78,7 +78,7 @@ export const init = (params: InitParams) => {
 
     const rayCaster = new THREE.Raycaster();
     rayCaster.setFromCamera(pointer, camera);
-   
+
     scene.children?.forEach((child) => {
       if (child.isObject3D) {
         meshArr.push(child);

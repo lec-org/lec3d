@@ -1,12 +1,12 @@
 import { CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer.js";
-import { Renderer } from "./../../dist/src/type.d";
-import { SceneItem } from "./../type";
+import { Renderer, SceneItem } from "./../type";
 import { Scene, Camera, Intersection, Object3D, Object3DEventMap } from "three";
 import {
   CSS3DObject,
   CSS3DSprite,
 } from "three/examples/jsm/renderers/CSS3DRenderer";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 export interface InitSceneParams {
   /** 辅助坐标轴 */
@@ -25,11 +25,11 @@ export interface InitSceneReturns {
 export interface AddControlsParams {
   callback?: (scene: Scene, camera: Camera) => void;
 }
-export interface CreateControlsParams{
+export interface CreateControlsParams {
   scene: Scene;
   camera: Camera;
-  element:HTMLElement;
-  callback:Function;
+  element: HTMLElement;
+  callback: Function;
 }
 export interface SceneAddParams {
   scene: Scene;
@@ -84,7 +84,7 @@ export type InitReturns = {
   scene: Scene;
   mountTo: (el: HTMLElement) => void;
   refresh: () => void;
-  addControls: (params: AddControlsParams) => AddControlsParams;
+  addControls: (params?: AddControlsParams) => OrbitControls;
   getClickEventTargets: (
     e: MouseEvent
   ) => Intersection<Object3D<Object3DEventMap>>[];
