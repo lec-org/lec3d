@@ -105,3 +105,13 @@ export interface CreateTextParams {
     z: number;
   };
 }
+
+// TODO: 后续有改动再调整
+export type InitCss2dParams = InitCss3dParams;
+export type CreateCss2dRendererParams = CreateCss3dRendererParams;
+
+export interface CreateCss2dObjectParams {
+  content: string | HTMLElement;
+  style: Record<string, any>;
+  occludable: boolean;
+}
