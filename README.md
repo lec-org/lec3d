@@ -14,9 +14,11 @@
 npm i @trickle/lec3d
 ```
 
-使用文档请参考: [lec3d 官方文档](https://lec-org.github.io/lec3d/) (开发+内测中...)
+使用文档请参考: [lec3d 官方文档](https://lec-org.github.io/lec3d/zh/) (开发+内测中...)
 
 ## 参与贡献
+
+TODO...
 
 ### 开发
 
