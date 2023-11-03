@@ -13,7 +13,9 @@
     <span class="token literal-property property">length</span><span class="token operator">:</span> <span class="token number">10000</span><span class="token punctuation">,</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="贡献和维护" tabindex="-1"><a class="header-anchor" href="#贡献和维护" aria-hidden="true">#</a> 贡献和维护</h2>
+
+<span class="token function">mountTo</span><span class="token punctuation">(</span>yourElement<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="贡献和维护" tabindex="-1"><a class="header-anchor" href="#贡献和维护" aria-hidden="true">#</a> 贡献和维护</h2>
 </div></template>
 
 

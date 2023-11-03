@@ -10,7 +10,9 @@
     <span class="token literal-property property">length</span><span class="token operator">:</span> <span class="token number">10000</span><span class="token punctuation">,</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="模型" tabindex="-1"><a class="header-anchor" href="#模型" aria-hidden="true">#</a> 模型</h2>
+
+<span class="token function">mountTo</span><span class="token punctuation">(</span>yourElement<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="模型" tabindex="-1"><a class="header-anchor" href="#模型" aria-hidden="true">#</a> 模型</h2>
 <h3 id="loadgltf" tabindex="-1"><a class="header-anchor" href="#loadgltf" aria-hidden="true">#</a> loadGLTF</h3>
 <p>快速导入 GLTF 模型文件, 并做相关</p>
 <p>参数: TODO

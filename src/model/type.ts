@@ -6,3 +6,8 @@ export interface LoadGLTFParams {
   options?: CommonModelOptions;
   callback?: (gltf: GLTF, model: THREE.Group<THREE.Object3DEventMap>) => void;
 }
+export interface LoadFBXParams {
+  modelPath: string;
+  options?: CommonModelOptions;
+  callback?: (FBX: any,animationStart:Function) => void;
+}

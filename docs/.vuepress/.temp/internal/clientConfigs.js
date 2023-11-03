@@ -1,10 +1,10 @@
-import clientConfig0 from 'D:/code/fe/programs/lec3d/node_modules/@vuepress/plugin-active-header-links/lib/client/config.js'
-import clientConfig1 from 'D:/code/fe/programs/lec3d/node_modules/@vuepress/plugin-back-to-top/lib/client/config.js'
-import clientConfig2 from 'D:/code/fe/programs/lec3d/node_modules/@vuepress/plugin-external-link-icon/lib/client/config.js'
-import clientConfig3 from 'D:/code/fe/programs/lec3d/node_modules/@vuepress/plugin-medium-zoom/lib/client/config.js'
-import clientConfig4 from 'D:/code/fe/programs/lec3d/node_modules/@vuepress/plugin-nprogress/lib/client/config.js'
-import clientConfig5 from 'D:/code/fe/programs/lec3d/node_modules/@vuepress/plugin-theme-data/lib/client/config.js'
-import clientConfig6 from 'D:/code/fe/programs/lec3d/node_modules/vuepress-vite/node_modules/@vuepress/theme-default/lib/client/config.js'
+import clientConfig0 from 'F:/前端项目/lec3d/node_modules/@vuepress/plugin-active-header-links/lib/client/config.js'
+import clientConfig1 from 'F:/前端项目/lec3d/node_modules/@vuepress/plugin-back-to-top/lib/client/config.js'
+import clientConfig2 from 'F:/前端项目/lec3d/node_modules/@vuepress/plugin-external-link-icon/lib/client/config.js'
+import clientConfig3 from 'F:/前端项目/lec3d/node_modules/@vuepress/plugin-medium-zoom/lib/client/config.js'
+import clientConfig4 from 'F:/前端项目/lec3d/node_modules/@vuepress/plugin-nprogress/lib/client/config.js'
+import clientConfig5 from 'F:/前端项目/lec3d/node_modules/@vuepress/plugin-theme-data/lib/client/config.js'
+import clientConfig6 from 'F:/前端项目/lec3d/node_modules/vuepress-vite/node_modules/@vuepress/theme-default/lib/client/config.js'
 
 export const clientConfigs = [
   clientConfig0,

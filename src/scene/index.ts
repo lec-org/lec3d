@@ -1,4 +1,4 @@
-import { AddControlsParams, InitCss3dParams, InitParams } from "./type";
+import { AddControlsParams, InitCss3dParams, InitParams,CreateControlsParams } from "./type";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as THREE from "three";
 import {
@@ -63,7 +63,7 @@ export const init = (params: InitParams) => {
 
     const rayCaster = new THREE.Raycaster();
     rayCaster.setFromCamera(pointer, camera);
-
+   
     scene.children?.forEach((child) => {
       if (child.isObject3D) {
         meshArr.push(child);

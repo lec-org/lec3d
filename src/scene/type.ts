@@ -18,7 +18,12 @@ export interface InitSceneReturns {
 export interface AddControlsParams {
   callback?: (scene: Scene, camera: Camera) => void;
 }
-
+export interface CreateControlsParams{
+  scene: Scene;
+  camera: Camera;
+  element:HTMLElement;
+  callback:Function;
+}
 export interface SceneAddParams {
   scene: Scene;
   content: Array<SceneItem> | SceneItem;
