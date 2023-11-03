@@ -13,6 +13,9 @@ export interface CommonModelOptions {
     y?: number | string;
     z?: number | string;
   };
+  animation?:{
+    index?:number
+  }
 }
 
 export type Position = {

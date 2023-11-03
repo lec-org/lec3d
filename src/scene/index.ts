@@ -78,7 +78,7 @@ export const init = (params: InitParams) => {
 
     const rayCaster = new THREE.Raycaster();
     rayCaster.setFromCamera(pointer, camera);
-
+   
     scene.children?.forEach((child) => {
       if (child.isObject3D) {
         meshArr.push(child);
