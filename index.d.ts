@@ -5254,7 +5254,7 @@ declare class WebGLObjects {
  * @see {@link https://threejs.org/docs/index.html#api/en/lights/shadows/LightShadow | Official Documentation}
  * @see {@link https://github.com/mrdoob/three.js/blob/master/src/lights/LightShadow.js | Source}
  */
-declare class LightShadow<TCamera extends Camera = Camera> {
+declare class LightShadow<TCamera extends Camera$1 = Camera$1> {
     /**
      * Create a new instance of {@link LightShadow}
      * @param camera The light's view of the world.
@@ -5481,7 +5481,7 @@ declare class WebGLShadowMap {
      */
     type: ShadowMapType;
 
-    render(shadowsArray: Light[], scene: Scene, camera: Camera): void;
+    render(shadowsArray: Light[], scene: Scene, camera: Camera$1): void;
 
     /**
      * @deprecated Use {@link Material#shadowSide} instead.
@@ -6127,7 +6127,7 @@ declare class WebGLMultipleRenderTargets extends WebGLRenderTarget<Texture[]> {
  * @see {@link https://threejs.org/docs/index.html#api/en/cameras/PerspectiveCamera | Official Documentation}
  * @see {@link https://github.com/mrdoob/three.js/blob/master/src/cameras/PerspectiveCamera.js | Source}
  */
-declare class PerspectiveCamera extends Camera {
+declare class PerspectiveCamera extends Camera$1 {
     /**
      * Creates a new {@link PerspectiveCamera}.
      * @remarks Together these define the camera's {@link https://en.wikipedia.org/wiki/Viewing_frustum | viewing frustum}.
@@ -6689,7 +6689,7 @@ declare class DataArrayTexture extends Texture {
 interface Renderer {
     domElement: HTMLCanvasElement;
 
-    render(scene: Object3D, camera: Camera): void;
+    render(scene: Object3D, camera: Camera$1): void;
     setSize(width: number, height: number, updateStyle?: boolean): void;
 }
 
@@ -7003,7 +7003,7 @@ declare class WebGLRenderer implements Renderer {
     dispose(): void;
 
     renderBufferDirect(
-        camera: Camera,
+        camera: Camera$1,
         scene: Scene,
         geometry: BufferGeometry,
         material: Material,
@@ -7025,7 +7025,7 @@ declare class WebGLRenderer implements Renderer {
     /**
      * Compiles all materials in the scene with the camera. This is useful to precompile shaders before the first rendering.
      */
-    compile(scene: Object3D, camera: Camera): void;
+    compile(scene: Object3D, camera: Camera$1): void;
 
     /**
      * Render a scene or an object using a camera.
@@ -7038,7 +7038,7 @@ declare class WebGLRenderer implements Renderer {
      * {@link WebGLRenderer#autoClearStencil autoClearStencil} or {@link WebGLRenderer#autoClearDepth autoClearDepth}
      * properties to false. To forcibly clear one ore more buffers call {@link WebGLRenderer#clear .clear}.
      */
-    render(scene: Object3D, camera: Camera): void;
+    render(scene: Object3D, camera: Camera$1): void;
 
     /**
      * Returns the current active cube face.
@@ -7365,7 +7365,7 @@ declare class Raycaster {
      * This field can be set manually or is set when calling  {@link setFromCamera}.
      * @defaultValue `null`
      */
-    camera: Camera;
+    camera: Camera$1;
 
     /**
      * Used by {@link Raycaster} to selectively ignore 3D objects when performing intersection tests.
@@ -7398,7 +7398,7 @@ declare class Raycaster {
      * @param coords 2D coordinates of the mouse, in normalized device coordinates (NDC)---X and Y components should be between -1 and 1.
      * @param camera camera from which the ray should originate
      */
-    setFromCamera(coords: Vector2, camera: Camera): void;
+    setFromCamera(coords: Vector2, camera: Camera$1): void;
 
     /**
      * Checks all intersection between the ray and the object with or without the descendants
@@ -7668,7 +7668,7 @@ declare class Object3D<TEventMap extends Object3DEventMap = Object3DEventMap> ex
     onBeforeRender: (
         renderer: WebGLRenderer,
         scene: Scene,
-        camera: Camera,
+        camera: Camera$1,
         geometry: BufferGeometry,
         material: Material,
         group: Group,
@@ -7687,7 +7687,7 @@ declare class Object3D<TEventMap extends Object3DEventMap = Object3DEventMap> ex
     onAfterRender: (
         renderer: WebGLRenderer,
         scene: Scene,
-        camera: Camera,
+        camera: Camera$1,
         geometry: BufferGeometry,
         material: Material,
         group: Group,
@@ -8011,7 +8011,7 @@ declare class Object3D<TEventMap extends Object3DEventMap = Object3DEventMap> ex
  * @see {@link https://threejs.org/docs/index.html#api/en/cameras/Camera | Official Documentation}
  * @see {@link https://github.com/mrdoob/three.js/blob/master/src/cameras/Camera.js | Source}
  */
-declare class Camera extends Object3D {
+declare class Camera$1 extends Object3D {
     /**
      * @remarks
      * Note that this class is not intended to be called directly; you probably want a
@@ -8245,9 +8245,9 @@ declare class Vector3 implements Vector {
 
     applyQuaternion(q: Quaternion): this;
 
-    project(camera: Camera): this;
+    project(camera: Camera$1): this;
 
-    unproject(camera: Camera): this;
+    unproject(camera: Camera$1): this;
 
     transformDirection(m: Matrix4): this;
 
@@ -10337,8 +10337,8 @@ declare class CSS2DObject extends Object3D {
     element: HTMLElement;
     center: Vector2;
 
-    onBeforeRender: (renderer: unknown, scene: Scene, camera: Camera) => void;
-    onAfterRender: (renderer: unknown, scene: Scene, camera: Camera) => void;
+    onBeforeRender: (renderer: unknown, scene: Scene, camera: Camera$1) => void;
+    onAfterRender: (renderer: unknown, scene: Scene, camera: Camera$1) => void;
 }
 
 declare class Font {
@@ -10468,8 +10468,8 @@ declare class CSS3DObject extends Object3D {
     constructor(element: HTMLElement);
     element: HTMLElement;
 
-    onBeforeRender: (renderer: unknown, scene: Scene, camera: Camera) => void;
-    onAfterRender: (renderer: unknown, scene: Scene, camera: Camera) => void;
+    onBeforeRender: (renderer: unknown, scene: Scene, camera: Camera$1) => void;
+    onAfterRender: (renderer: unknown, scene: Scene, camera: Camera$1) => void;
 }
 
 declare class CSS3DSprite extends CSS3DObject {
@@ -10490,12 +10490,12 @@ interface OrbitControlsEventMap {
  * event listeners.
  */
 declare class OrbitControls extends EventDispatcher<OrbitControlsEventMap> {
-    constructor(object: Camera, domElement?: HTMLElement);
+    constructor(object: Camera$1, domElement?: HTMLElement);
 
     /**
      * The camera being controlled.
      */
-    object: Camera;
+    object: Camera$1;
 
     /**
      * The HTMLElement used to listen for mouse / touch events.
@@ -10771,9 +10771,15 @@ interface CommonModelOptions {
         z?: number | string;
     };
 }
+type Position = {
+    x?: number;
+    y?: number;
+    z?: number;
+};
+type Camera = THREE.Camera & Position;
 
 interface AddControlsParams {
-    callback?: (scene: Scene, camera: Camera) => void;
+    callback?: (scene: Scene, camera: Camera$1) => void;
 }
 interface CreateAxesHelperParams {
     length?: number;
@@ -10817,7 +10823,7 @@ interface CreateCss3dObjectParams {
 }
 interface InitCss3dParams {
     scene: Scene;
-    camera: Camera;
+    camera: Camera$1;
 }
 interface CreateTextParams {
     text: string;
@@ -10855,7 +10861,7 @@ interface GLTF {
     animations: AnimationClip[];
     scene: Group;
     scenes: Group[];
-    cameras: Camera[];
+    cameras: Camera$1[];
     asset: {
         copyright?: string | undefined;
         generator?: string | undefined;
@@ -10928,7 +10934,7 @@ declare class GLTFParser {
         primitives: Array<{ [key: string]: any }>,
     ) => Promise<BufferGeometry[]>;
     loadMesh: (meshIndex: number) => Promise<Group | Mesh | SkinnedMesh>;
-    loadCamera: (cameraIndex: number) => Promise<Camera>;
+    loadCamera: (cameraIndex: number) => Promise<Camera$1>;
     loadSkin: (skinIndex: number) => Promise<Skeleton>;
     loadAnimation: (animationIndex: number) => Promise<AnimationClip>;
     loadNode: (nodeIndex: number) => Promise<Object3D>;
@@ -10961,7 +10967,7 @@ declare const lec3d: {
     loadGLTF: ({ modelPath, options, callback }: LoadGLTFParams) => void;
     init: (params: InitParams) => {
         renderer: WebGLRenderer;
-        camera: PerspectiveCamera;
+        camera: Camera;
         scene: Scene;
         mountTo: (element: HTMLElement) => void;
         refresh: () => void;
