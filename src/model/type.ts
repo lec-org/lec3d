@@ -11,3 +11,5 @@ export interface LoadFBXParams {
   options?: CommonModelOptions;
   callback?: (FBX: any,animationStart:Function) => void;
 }
+
+export type LoadGLTFReturns = void;

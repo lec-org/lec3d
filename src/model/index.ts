@@ -10,7 +10,11 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import * as THREE from "three";
 
 /** 导入 GLTF 文件 */
-export const loadGLTF = ({ modelPath, options, callback }: LoadGLTFParams) => {
+export const loadGLTF = ({
+  modelPath,
+  options,
+  callback,
+}: LoadGLTFParams): LoadGLTFReturns => {
   const loader = new THREE.ImageLoader();
   loader.setCrossOrigin("Anonymous"); // 解决跨域问题
 

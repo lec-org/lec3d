@@ -1,6 +1,6 @@
 {
   "name": "@trickle/lec3d",
-  "version": "0.0.4-beta.1",
+  "version": "0.0.4-beta.3",
   "description": "easier three.js encapsulated by lec",
   "main": "dist/index.js",
   "publishConfig": {
@@ -32,7 +32,7 @@
     "url": "https://github.com/lec-org/lec3d.git"
   },
   "homepage": "https://github.com/lec-org/lec3d",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.23.0",
     "@rollup/plugin-alias": "^5.0.1",

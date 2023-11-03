@@ -17,10 +17,11 @@ title: 参考文档
 ```bash
 npm i @trickle/lec3d
 ```
-@[code js](../../components/init/index.js)
+@[code ts](../../components/init/index.ts)
 
 ## 贡献和维护
 
+TODO...
 
 
 

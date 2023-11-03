@@ -1,4 +1,21 @@
 /// <reference types="webxr" />
+// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent.button
+declare enum MOUSE {
+    LEFT = 0,
+    MIDDLE = 1,
+    RIGHT = 2,
+    ROTATE = 0,
+    DOLLY = 1,
+    PAN = 2,
+}
+
+declare enum TOUCH {
+    ROTATE = 0,
+    PAN = 1,
+    DOLLY_PAN = 2,
+    DOLLY_ROTATE = 3,
+}
+
 // GL STATE CONSTANTS
 declare const CullFaceNone: 0;
 declare const CullFaceBack: 1;
@@ -101,13 +118,6 @@ type DepthModes =
     | typeof GreaterEqualDepth
     | typeof GreaterDepth
     | typeof NotEqualDepth;
-
-// TEXTURE CONSTANTS
-// Operations
-declare const MultiplyOperation: 0;
-declare const MixOperation: 1;
-declare const AddOperation: 2;
-type Combine = typeof MultiplyOperation | typeof MixOperation | typeof AddOperation;
 
 // Tone Mapping modes
 declare const NoToneMapping: 0;
@@ -5237,7 +5247,7 @@ declare class WebGLObjects {
  * @see {@link https://threejs.org/docs/index.html#api/en/lights/shadows/LightShadow | Official Documentation}
  * @see {@link https://github.com/mrdoob/three.js/blob/master/src/lights/LightShadow.js | Source}
  */
-declare class LightShadow<TCamera extends Camera = Camera> {
+declare class LightShadow<TCamera extends Camera$1 = Camera$1> {
     /**
      * Create a new instance of {@link LightShadow}
      * @param camera The light's view of the world.
@@ -5464,7 +5474,7 @@ declare class WebGLShadowMap {
      */
     type: ShadowMapType;
 
-    render(shadowsArray: Light[], scene: Scene, camera: Camera): void;
+    render(shadowsArray: Light[], scene: Scene, camera: Camera$1): void;
 
     /**
      * @deprecated Use {@link Material#shadowSide} instead.
@@ -6110,7 +6120,7 @@ declare class WebGLMultipleRenderTargets extends WebGLRenderTarget<Texture[]> {
  * @see {@link https://threejs.org/docs/index.html#api/en/cameras/PerspectiveCamera | Official Documentation}
  * @see {@link https://github.com/mrdoob/three.js/blob/master/src/cameras/PerspectiveCamera.js | Source}
  */
-declare class PerspectiveCamera extends Camera {
+declare class PerspectiveCamera extends Camera$1 {
     /**
      * Creates a new {@link PerspectiveCamera}.
      * @remarks Together these define the camera's {@link https://en.wikipedia.org/wiki/Viewing_frustum | viewing frustum}.
@@ -6672,7 +6682,7 @@ declare class DataArrayTexture extends Texture {
 interface Renderer {
     domElement: HTMLCanvasElement;
 
-    render(scene: Object3D, camera: Camera): void;
+    render(scene: Object3D, camera: Camera$1): void;
     setSize(width: number, height: number, updateStyle?: boolean): void;
 }
 
@@ -6986,7 +6996,7 @@ declare class WebGLRenderer implements Renderer {
     dispose(): void;
 
     renderBufferDirect(
-        camera: Camera,
+        camera: Camera$1,
         scene: Scene,
         geometry: BufferGeometry,
         material: Material,
@@ -7008,7 +7018,7 @@ declare class WebGLRenderer implements Renderer {
     /**
      * Compiles all materials in the scene with the camera. This is useful to precompile shaders before the first rendering.
      */
-    compile(scene: Object3D, camera: Camera): void;
+    compile(scene: Object3D, camera: Camera$1): void;
 
     /**
      * Render a scene or an object using a camera.
@@ -7021,7 +7031,7 @@ declare class WebGLRenderer implements Renderer {
      * {@link WebGLRenderer#autoClearStencil autoClearStencil} or {@link WebGLRenderer#autoClearDepth autoClearDepth}
      * properties to false. To forcibly clear one ore more buffers call {@link WebGLRenderer#clear .clear}.
      */
-    render(scene: Object3D, camera: Camera): void;
+    render(scene: Object3D, camera: Camera$1): void;
 
     /**
      * Returns the current active cube face.
@@ -7348,7 +7358,7 @@ declare class Raycaster {
      * This field can be set manually or is set when calling  {@link setFromCamera}.
      * @defaultValue `null`
      */
-    camera: Camera;
+    camera: Camera$1;
 
     /**
      * Used by {@link Raycaster} to selectively ignore 3D objects when performing intersection tests.
@@ -7381,7 +7391,7 @@ declare class Raycaster {
      * @param coords 2D coordinates of the mouse, in normalized device coordinates (NDC)---X and Y components should be between -1 and 1.
      * @param camera camera from which the ray should originate
      */
-    setFromCamera(coords: Vector2, camera: Camera): void;
+    setFromCamera(coords: Vector2, camera: Camera$1): void;
 
     /**
      * Checks all intersection between the ray and the object with or without the descendants
@@ -7651,7 +7661,7 @@ declare class Object3D<TEventMap extends Object3DEventMap = Object3DEventMap> ex
     onBeforeRender: (
         renderer: WebGLRenderer,
         scene: Scene,
-        camera: Camera,
+        camera: Camera$1,
         geometry: BufferGeometry,
         material: Material,
         group: Group,
@@ -7670,7 +7680,7 @@ declare class Object3D<TEventMap extends Object3DEventMap = Object3DEventMap> ex
     onAfterRender: (
         renderer: WebGLRenderer,
         scene: Scene,
-        camera: Camera,
+        camera: Camera$1,
         geometry: BufferGeometry,
         material: Material,
         group: Group,
@@ -7994,7 +8004,7 @@ declare class Object3D<TEventMap extends Object3DEventMap = Object3DEventMap> ex
  * @see {@link https://threejs.org/docs/index.html#api/en/cameras/Camera | Official Documentation}
  * @see {@link https://github.com/mrdoob/three.js/blob/master/src/cameras/Camera.js | Source}
  */
-declare class Camera extends Object3D {
+declare class Camera$1 extends Object3D {
     /**
      * @remarks
      * Note that this class is not intended to be called directly; you probably want a
@@ -8228,9 +8238,9 @@ declare class Vector3 implements Vector {
 
     applyQuaternion(q: Quaternion): this;
 
-    project(camera: Camera): this;
+    project(camera: Camera$1): this;
 
-    unproject(camera: Camera): this;
+    unproject(camera: Camera$1): this;
 
     transformDirection(m: Matrix4): this;
 
@@ -8562,727 +8572,6 @@ declare class CubeTexture extends Texture {
      * @defaultValue `false`
      */
     flipY: boolean;
-}
-
-/**
- * An abstract base class for creating a {@link Curve} object that contains methods for interpolation
- * @remarks
- * For an array of Curves see {@link THREE.CurvePath | CurvePath}.
- * @remarks
- * This following curves inherit from THREE.Curve:
- *
- * **2D curves**
- *  - {@link THREE.ArcCurve}
- *  - {@link THREE.CubicBezierCurve}
- *  - {@link THREE.EllipseCurve}
- *  - {@link THREE.LineCurve}
- *  - {@link THREE.QuadraticBezierCurve}
- *  - {@link THREE.SplineCurve}
- *
- * **3D curves**
- *  - {@link THREE.CatmullRomCurve3}
- *  - {@link THREE.CubicBezierCurve3}
- *  - {@link THREE.LineCurve3}
- *  - {@link THREE.QuadraticBezierCurve3}
- *
- * @see {@link https://threejs.org/docs/index.html#api/en/extras/core/Curve | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/extras/core/Curve.js | Source}
- */
-declare abstract class Curve<T extends Vector> {
-    protected constructor();
-
-    /**
-     * A Read-only _string_ to check if `this` object type.
-     * @remarks Sub-classes will update this value.
-     * @defaultValue `Curve`
-     */
-    readonly type: string | 'Curve';
-
-    /**
-     * This value determines the amount of divisions when calculating the cumulative segment lengths of a {@link Curve}
-     * via {@link .getLengths}.
-     * To ensure precision when using methods like {@link .getSpacedPoints}, it is recommended to increase {@link .arcLengthDivisions} if the {@link Curve} is very large.
-     * @defaultValue `200`
-     * @remarks Expects a `Integer`
-     */
-    arcLengthDivisions: number;
-
-    /**
-     * Returns a vector for a given position on the curve.
-     * @param t A position on the curve. Must be in the range `[ 0, 1 ]`. Expects a `Float`
-     * @param optionalTarget If specified, the result will be copied into this Vector, otherwise a new Vector will be created. Default `new T`.
-     */
-    getPoint(t: number, optionalTarget?: T): T;
-
-    /**
-     * Returns a vector for a given position on the {@link Curve} according to the arc length.
-     * @param u A position on the {@link Curve} according to the arc length. Must be in the range `[ 0, 1 ]`. Expects a `Float`
-     * @param optionalTarget If specified, the result will be copied into this Vector, otherwise a new Vector will be created. Default `new T`.
-     */
-    getPointAt(u: number, optionalTarget?: T): T;
-
-    /**
-     * Returns a set of divisions `+1` points using {@link .getPoint | getPoint(t)}.
-     * @param divisions Number of pieces to divide the {@link Curve} into. Expects a `Integer`. Default `5`
-     */
-    getPoints(divisions?: number): T[];
-
-    /**
-     * Returns a set of divisions `+1` equi-spaced points using {@link .getPointAt | getPointAt(u)}.
-     * @param divisions Number of pieces to divide the {@link Curve} into. Expects a `Integer`. Default `5`
-     */
-    getSpacedPoints(divisions?: number): T[];
-
-    /**
-     * Get total {@link Curve} arc length.
-     */
-    getLength(): number;
-
-    /**
-     * Get list of cumulative segment lengths.
-     * @param divisions Expects a `Integer`
-     */
-    getLengths(divisions?: number): number[];
-
-    /**
-     * Update the cumlative segment distance cache
-     * @remarks
-     * The method must be called every time {@link Curve} parameters are changed
-     * If an updated {@link Curve} is part of a composed {@link Curve} like {@link THREE.CurvePath | CurvePath},
-     * {@link .updateArcLengths}() must be called on the composed curve, too.
-     */
-    updateArcLengths(): void;
-
-    /**
-     * Given u in the range `[ 0, 1 ]`,
-     * @remarks
-     * `u` and `t` can then be used to give you points which are equidistant from the ends of the curve, using {@link .getPoint}.
-     * @param u Expects a `Float`
-     * @param distance Expects a `Float`
-     * @returns `t` also in the range `[ 0, 1 ]`. Expects a `Float`.
-     */
-    getUtoTmapping(u: number, distance: number): number;
-
-    /**
-     * Returns a unit vector tangent at t
-     * @remarks
-     * If the derived {@link Curve} does not implement its tangent derivation, two points a small delta apart will be used to find its gradient which seems to give a reasonable approximation.
-     * @param t A position on the curve. Must be in the range `[ 0, 1 ]`. Expects a `Float`
-     * @param optionalTarget If specified, the result will be copied into this Vector, otherwise a new Vector will be created.
-     */
-    getTangent(t: number, optionalTarget?: T): T;
-
-    /**
-     * Returns tangent at a point which is equidistant to the ends of the {@link Curve} from the point given in {@link .getTangent}.
-     * @param u A position on the {@link Curve} according to the arc length. Must be in the range `[ 0, 1 ]`. Expects a `Float`
-     * @param optionalTarget If specified, the result will be copied into this Vector, otherwise a new Vector will be created.
-     */
-    getTangentAt(u: number, optionalTarget?: T): T;
-
-    /**
-     * Generates the Frenet Frames
-     * @remarks
-     * Requires a {@link Curve} definition in 3D space
-     * Used in geometries like {@link THREE.TubeGeometry | TubeGeometry} or {@link THREE.ExtrudeGeometry | ExtrudeGeometry}.
-     * @param segments Expects a `Integer`
-     * @param closed
-     */
-    computeFrenetFrames(
-        segments: number,
-        closed?: boolean,
-    ): {
-        tangents: Vector3[];
-        normals: Vector3[];
-        binormals: Vector3[];
-    };
-
-    /**
-     * Creates a clone of this instance.
-     */
-    clone(): this;
-    /**
-     * Copies another {@link Curve} object to this instance.
-     * @param source
-     */
-    copy(source: Curve<T>): this;
-
-    /**
-     * Returns a JSON object representation of this instance.
-     */
-    toJSON(): {};
-
-    /**
-     * Copies the data from the given JSON object to this instance.
-     * @param json
-     */
-    fromJSON(json: {}): this;
-}
-
-/**
- * Curved Path - a curve path is simply a array of connected curves, but retains the api of a curve.
- * @remarks
- * A {@link CurvePath} is simply an array of connected curves, but retains the api of a curve.
- * @see {@link https://threejs.org/docs/index.html#api/en/extras/core/CurvePath | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/extras/core/CurvePath.js | Source}
- */
-declare class CurvePath<T extends Vector> extends Curve<T> {
-    /**
-     * The constructor take no parameters.
-     */
-    constructor();
-
-    /**
-     * A Read-only _string_ to check if `this` object type.
-     * @remarks Sub-classes will update this value.
-     * @defaultValue `CurvePath`
-     */
-    override readonly type: string | 'CurvePath';
-
-    /**
-     * The array of {@link Curve | Curves}.
-     * @defaultValue `[]`
-     */
-    curves: Array<Curve<T>>;
-
-    /**
-     * Whether or not to automatically close the path.
-     * @defaultValue false
-     */
-    autoClose: boolean;
-
-    /**
-     * Add a curve to the {@link .curves} array.
-     * @param curve
-     */
-    add(curve: Curve<T>): void;
-    /**
-     * Adds a {@link LineCurve | lineCurve} to close the path.
-     */
-    closePath(): void;
-
-    getPoint(t: number, optionalTarget?: T): T;
-
-    /**
-     * Get list of cumulative curve lengths of the curves in the {@link .curves} array.
-     */
-    getCurveLengths(): number[];
-
-    /**
-     * Returns an array of points representing a sequence of curves
-     * @remarks
-     * The `division` parameter defines the number of pieces each curve is divided into
-     * However, for optimization and quality purposes, the actual sampling resolution for each curve depends on its type
-     * For example, for a {@link THREE.LineCurve | LineCurve}, the returned number of points is always just 2.
-     * @param divisions Number of pieces to divide the curve into. Expects a `Integer`. Default `12`
-     */
-    override getPoints(divisions?: number): T[];
-
-    /**
-     * Returns a set of divisions `+1` equi-spaced points using {@link .getPointAt | getPointAt(u)}.
-     * @param divisions Number of pieces to divide the curve into. Expects a `Integer`. Default `40`
-     */
-    override getSpacedPoints(divisions?: number): T[];
-}
-
-/**
- * A 2D {@link Path} representation.
- * @remarks
- * The class provides methods for creating paths and contours of 2D shapes similar to the 2D Canvas API.
- * @example
- * ```typescript
- * const {@link Path} = new THREE.Path();
- * path.lineTo(0, 0.8);
- * path.quadraticCurveTo(0, 1, 0.2, 1);
- * path.lineTo(1, 1);
- * const points = path.getPoints();
- * const geometry = new THREE.BufferGeometry().setFromPoints(points);
- * const material = new THREE.LineBasicMaterial({
- *     color: 0xffffff
- * });
- * const line = new THREE.Line(geometry, material);
- * scene.add(line);
- * ```
- * @see {@link https://threejs.org/docs/index.html#api/en/extras/core/Path | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/extras/core/Path.js | Source}
- */
-declare class Path extends CurvePath<Vector2> {
-    /**
-     * Creates a {@link Path} from the points
-     * @remarks
-     * The first point defines the offset, then successive points are added to the {@link CurvePath.curves | curves} array as {@link LineCurve | LineCurves}.
-     * If no points are specified, an empty {@link Path} is created and the {@link .currentPoint} is set to the origin.
-     * @param points Array of {@link Vector2 | Vector2s}.
-     */
-    constructor(points?: Vector2[]);
-
-    /**
-     * A Read-only _string_ to check if `this` object type.
-     * @remarks Sub-classes will update this value.
-     * @defaultValue `Path`
-     */
-    override readonly type: string | 'Path';
-
-    /**
-     * The current offset of the path. Any new {@link THREE.Curve | Curve} added will start here.
-     * @defaultValue `new THREE.Vector2()`
-     */
-    currentPoint: Vector2;
-
-    /**
-     * Adds an absolutely positioned {@link THREE.EllipseCurve | EllipseCurve} to the path.
-     * @param x Expects a `Float`
-     * @param y X, The absolute center of the arc. Expects a `Float`
-     * @param radius The radius of the arc. Expects a `Float`
-     * @param startAngle The start angle in radians. Expects a `Float`
-     * @param endAngle The end angle in radians. Expects a `Float`
-     * @param clockwise Sweep the arc clockwise. . Default `false`
-     */
-    absarc(aX: number, aY: number, aRadius: number, aStartAngle: number, aEndAngle: number, aClockwise: boolean): this;
-
-    /**
-     * Adds an absolutely positioned {@link THREE.EllipseCurve | EllipseCurve} to the path.
-     * @param x Expects a `Float`
-     * @param y X, The absolute center of the ellipse. Expects a `Float`
-     * @param xRadius The radius of the ellipse in the x axis. Expects a `Float`
-     * @param yRadius The radius of the ellipse in the y axis. Expects a `Float`
-     * @param startAngle The start angle in radians. Expects a `Float`
-     * @param endAngle The end angle in radians. Expects a `Float`
-     * @param clockwise Sweep the ellipse clockwise. . Default `false`
-     * @param rotation The rotation angle of the ellipse in radians, counterclockwise from the positive X axis. Optional, Expects a `Float`. Default `0`
-     */
-    absellipse(
-        aX: number,
-        aY: number,
-        xRadius: number,
-        yRadius: number,
-        aStartAngle: number,
-        aEndAngle: number,
-        aClockwise: boolean,
-        aRotation?: number,
-    ): this;
-
-    /**
-     * Adds an {@link THREE.EllipseCurve | EllipseCurve} to the path, positioned relative to {@link .currentPoint}.
-     * @param x Expects a `Float`
-     * @param y X, The center of the arc offset from the last call. Expects a `Float`
-     * @param radius The radius of the arc. Expects a `Float`
-     * @param startAngle The start angle in radians. Expects a `Float`
-     * @param endAngle The end angle in radians. Expects a `Float`
-     * @param clockwise Sweep the arc clockwise. . Default `false`
-     */
-    arc(aX: number, aY: number, aRadius: number, aStartAngle: number, aEndAngle: number, aClockwise: boolean): this;
-
-    /**
-     * This creates a bezier curve from {@link .currentPoint} with (cp1X, cp1Y) and (cp2X, cp2Y) as control points and updates {@link .currentPoint} to x and y.
-     * @param cp1X Expects a `Float`
-     * @param cp1Y Expects a `Float`
-     * @param cp2X Expects a `Float`
-     * @param cp2Y Expects a `Float`
-     * @param x Expects a `Float`
-     * @param y Expects a `Float`
-     */
-    bezierCurveTo(aCP1x: number, aCP1y: number, aCP2x: number, aCP2y: number, aX: number, aY: number): this;
-
-    /**
-     * Adds an {@link THREE.EllipseCurve | EllipseCurve} to the path, positioned relative to {@link .currentPoint}.
-     * @param x Expects a `Float`
-     * @param y X, The center of the ellipse offset from the last call. Expects a `Float`
-     * @param xRadius The radius of the ellipse in the x axis. Expects a `Float`
-     * @param yRadius The radius of the ellipse in the y axis. Expects a `Float`
-     * @param startAngle The start angle in radians. Expects a `Float`
-     * @param endAngle The end angle in radians. Expects a `Float`
-     * @param clockwise Sweep the ellipse clockwise. . Default `false`
-     * @param rotation The rotation angle of the ellipse in radians, counterclockwise from the positive X axis. Optional, Expects a `Float`. Default `0`
-     */
-    ellipse(
-        aX: number,
-        aY: number,
-        xRadius: number,
-        yRadius: number,
-        aStartAngle: number,
-        aEndAngle: number,
-        aClockwise: boolean,
-        aRotation: number,
-    ): this;
-
-    /**
-     * Connects a {@link THREE.LineCurve | LineCurve} from {@link .currentPoint} to x, y onto the path.
-     * @param x Expects a `Float`
-     * @param y Expects a `Float`
-     */
-    lineTo(x: number, y: number): this;
-
-    /**
-     * Move the {@link .currentPoint} to x, y.
-     * @param x Expects a `Float`
-     * @param y Expects a `Float`
-     */
-    moveTo(x: number, y: number): this;
-
-    /**
-     * Creates a quadratic curve from {@link .currentPoint} with cpX and cpY as control point and updates {@link .currentPoint} to x and y.
-     * @param cpX Expects a `Float`
-     * @param cpY Expects a `Float`
-     * @param x Expects a `Float`
-     * @param y Expects a `Float`
-     */
-    quadraticCurveTo(aCPx: number, aCPy: number, aX: number, aY: number): this;
-
-    /**
-     * Points are added to the {@link CurvePath.curves | curves} array as {@link THREE.LineCurve | LineCurves}.
-     * @param vector2s
-     */
-    setFromPoints(vectors: Vector2[]): this;
-
-    /**
-     * Connects a new {@link THREE.SplineCurve | SplineCurve} onto the path.
-     * @param points An array of {@link Vector2 | Vector2's}
-     */
-    splineThru(pts: Vector2[]): this;
-}
-
-/**
- * Defines an arbitrary 2d {@link Shape} plane using paths with optional holes
- * @remarks
- * It can be used with {@link THREE.ExtrudeGeometry | ExtrudeGeometry}, {@link THREE.ShapeGeometry | ShapeGeometry}, to get points, or to get triangulated faces.
- * @example
- * ```typescript
- * const heartShape = new THREE.Shape();
- * heartShape.moveTo(25, 25);
- * heartShape.bezierCurveTo(25, 25, 20, 0, 0, 0);
- * heartShape.bezierCurveTo(-30, 0, -30, 35, -30, 35);
- * heartShape.bezierCurveTo(-30, 55, -10, 77, 25, 95);
- * heartShape.bezierCurveTo(60, 77, 80, 55, 80, 35);
- * heartShape.bezierCurveTo(80, 35, 80, 0, 50, 0);
- * heartShape.bezierCurveTo(35, 0, 25, 25, 25, 25);
- * const extrudeSettings = {
- *     depth: 8,
- *     bevelEnabled: true,
- *     bevelSegments: 2,
- *     steps: 2,
- *     bevelSize: 1,
- *     bevelThickness: 1
- * };
- * const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
- * const mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
- * ```
- * @see Example: {@link https://threejs.org/examples/#webgl_geometry_shapes | geometry / shapes }
- * @see Example: {@link https://threejs.org/examples/#webgl_geometry_extrude_shapes | geometry / extrude / shapes }
- * @see Example: {@link https://threejs.org/examples/#webgl_geometry_extrude_shapes2 | geometry / extrude / shapes2 }
- * @see {@link https://threejs.org/docs/index.html#api/en/extras/core/Shape | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/extras/core/Shape.js | Source}
- */
-declare class Shape extends Path {
-    /**
-     * Creates a {@link Shape} from the points
-     * @remarks
-     * The first point defines the offset, then successive points are added to the {@link CurvePath.curves | curves} array as {@link THREE.LineCurve | LineCurves}.
-     * If no points are specified, an empty {@link Shape} is created and the {@link .currentPoint} is set to the origin.
-     * @param points Array of {@link Vector2 | Vector2s}.
-     */
-    constructor(points?: Vector2[]);
-
-    /**
-     * A Read-only _string_ to check if `this` object type.
-     * @remarks Sub-classes will update this value.
-     * @defaultValue `Shape`
-     */
-    override readonly type: string | 'Shape';
-
-    /**
-     * {@link http://en.wikipedia.org/wiki/Universally_unique_identifier | UUID} of this object instance.
-     * @remarks This gets automatically assigned and shouldn't be edited.
-     */
-    uuid: string;
-
-    /**
-     * An array of {@link Path | paths} that define the holes in the shape.
-     * @defaultValue `[]`
-     */
-    holes: Path[];
-
-    /**
-     * Call {@link THREE.Curve.getPoints | getPoints} on the {@link Shape} and the {@link holes} array
-     * @param divisions The fineness of the result. Expects a `Integer`
-     */
-    extractPoints(divisions: number): {
-        shape: Vector2[];
-        holes: Vector2[][];
-    };
-
-    /**
-     * Get an array of {@link Vector2 | Vector2's} that represent the holes in the shape.
-     * @param divisions The fineness of the result. Expects a `Integer`
-     */
-    getPointsHoles(divisions: number): Vector2[][];
-}
-
-interface ExtrudeGeometryOptions {
-    /**
-     * Number of points on the curves.
-     * Expects a `Integer`.
-     * @defaultValue `12`
-     */
-    curveSegments?: number | undefined;
-
-    /**
-     * Number of points used for subdividing segments along the depth of the extruded spline.
-     * @defaultValue `1`
-     */
-    steps?: number | undefined;
-
-    /**
-     * Depth to extrude the shape.
-     * @defaultValue `1`
-     */
-    depth?: number | undefined;
-
-    /**
-     * Turn on bevel. Applying beveling to the shape.
-     * @defaultValue `true`
-     */
-    bevelEnabled?: boolean | undefined;
-
-    /**
-     * How deep into the original shape the bevel goes.
-     * Expects a `Float`.
-     * @defaultValue `0.2`
-     */
-    bevelThickness?: number | undefined;
-
-    /**
-     * Distance from the shape outline that the bevel extends
-     * Expects a `Float`.
-     * @defaultValue `bevelThickness - 0.1`
-     */
-    bevelSize?: number | undefined;
-
-    /**
-     * Distance from the shape outline that the bevel starts.
-     * Expects a `Float`.
-     * @defaultValue `0`
-     */
-    bevelOffset?: number | undefined;
-
-    /**
-     * Number of bevel layers/segments.
-     * Expects a `Integer`.
-     * @defaultValue `3`
-     */
-    bevelSegments?: number | undefined;
-
-    /**
-     * A 3D spline path along which the shape should be extruded.
-     * @remarks Bevels not supported for path extrusion.
-     */
-    extrudePath?: Curve<Vector3> | undefined;
-
-    /**
-     * A object that provides UV generator functions.
-     */
-    UVGenerator?: UVGenerator | undefined;
-}
-
-interface UVGenerator {
-    generateTopUV(
-        geometry: ExtrudeGeometry,
-        vertices: number[],
-        indexA: number,
-        indexB: number,
-        indexC: number,
-    ): Vector2[];
-    generateSideWallUV(
-        geometry: ExtrudeGeometry,
-        vertices: number[],
-        indexA: number,
-        indexB: number,
-        indexC: number,
-        indexD: number,
-    ): Vector2[];
-}
-
-/**
- * Creates extruded geometry from a path shape.
- * @remarks This object extrudes a 2D shape to a 3D geometry.
- * @remarks When creating a Mesh with this geometry, if you'd like to have a separate material used for its face and its extruded sides, you can use an array of materials
- * @remarks The first material will be applied to the face; the second material will be applied to the sides.
- * @example
- * ```typescript
- * const length = 12, width = 8;
- * const shape = new THREE.Shape();
- * shape.moveTo(0, 0);
- * shape.lineTo(0, width);
- * shape.lineTo(length, width);
- * shape.lineTo(length, 0);
- * shape.lineTo(0, 0);
- * const extrudeSettings = {
- *     steps: 2,
- *     depth: 16,
- *     bevelEnabled: true,
- *     bevelThickness: 1,
- *     bevelSize: 1,
- *     bevelOffset: 0,
- *     bevelSegments: 1
- * };
- * const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
- * const material = new THREE.MeshBasicMaterial({
- *     color: 0x00ff00
- * });
- * const mesh = new THREE.Mesh(geometry, material);
- * scene.add(mesh);
- * ```
- * @see {@link https://threejs.org/docs/index.html#api/en/geometries/ExtrudeGeometry | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/src/geometries/ExtrudeGeometry.js | Source}
- */
-declare class ExtrudeGeometry extends BufferGeometry {
-    /**
-     * Create a new instance of {@link ExtrudeGeometry}
-     * @param shapes Shape or an array of shapes. Default `new Shape([new Vector2(0.5, 0.5), new Vector2(-0.5, 0.5), new Vector2(-0.5, -0.5), new Vector2(0.5, -0.5)])`.
-     * @param options Object that can contain the following parameters. @see {@link ExtrudeGeometryOptions} for defaults.
-     */
-    constructor(shapes?: Shape | Shape[], options?: ExtrudeGeometryOptions);
-
-    /**
-     * A Read-only _string_ to check if `this` object type.
-     * @remarks Sub-classes will update this value.
-     * @defaultValue `ExtrudeGeometry`
-     */
-    override readonly type: string | 'ExtrudeGeometry';
-
-    /**
-     * An object with a property for each of the constructor parameters.
-     * @remarks Any modification after instantiation does not change the geometry.
-     */
-    readonly parameters: {
-        readonly shapes: Shape | Shape[];
-        readonly options: ExtrudeGeometryOptions;
-    };
-
-    addShape(shape: Shape): void;
-
-    /** @internal */
-    static fromJSON(data: {}, shapes: unknown): ExtrudeGeometry;
-}
-
-/**
- * parameters is an object with one or more properties defining the material's appearance.
- */
-interface MeshBasicMaterialParameters extends MaterialParameters {
-    color?: ColorRepresentation | undefined;
-    opacity?: number | undefined;
-    map?: Texture | null | undefined;
-    lightMap?: Texture | null;
-    lightMapIntensity?: number | undefined;
-    aoMap?: Texture | null | undefined;
-    aoMapIntensity?: number | undefined;
-    specularMap?: Texture | null | undefined;
-    alphaMap?: Texture | null | undefined;
-    fog?: boolean | undefined;
-    envMap?: Texture | null | undefined;
-    combine?: Combine | undefined;
-    reflectivity?: number | undefined;
-    refractionRatio?: number | undefined;
-    wireframe?: boolean | undefined;
-    wireframeLinewidth?: number | undefined;
-    wireframeLinecap?: string | undefined;
-    wireframeLinejoin?: string | undefined;
-}
-
-declare class MeshBasicMaterial extends Material {
-    constructor(parameters?: MeshBasicMaterialParameters);
-
-    /**
-     * @default 'MeshBasicMaterial'
-     */
-    type: string;
-
-    /**
-     * @default new THREE.Color( 0xffffff )
-     */
-    color: Color;
-
-    /**
-     * @default null
-     */
-    map: Texture | null;
-
-    /**
-     * @default null
-     */
-    lightMap: Texture | null;
-
-    /**
-     * @default 1
-     */
-    lightMapIntensity: number;
-
-    /**
-     * @default null
-     */
-    aoMap: Texture | null;
-
-    /**
-     * @default 1
-     */
-    aoMapIntensity: number;
-
-    /**
-     * @default null
-     */
-    specularMap: Texture | null;
-
-    /**
-     * @default null
-     */
-    alphaMap: Texture | null;
-
-    /**
-     * @default null
-     */
-    envMap: Texture | null;
-
-    /**
-     * @default THREE.MultiplyOperation
-     */
-    combine: Combine;
-
-    /**
-     * @default 1
-     */
-    reflectivity: number;
-
-    /**
-     * @default 0.98
-     */
-    refractionRatio: number;
-
-    /**
-     * @default false
-     */
-    wireframe: boolean;
-
-    /**
-     * @default 1
-     */
-    wireframeLinewidth: number;
-
-    /**
-     * @default 'round'
-     */
-    wireframeLinecap: string;
-
-    /**
-     * @default 'round'
-     */
-    wireframeLinejoin: string;
-
-    /**
-     * Whether the material is affected by fog. Default is true.
-     * @default fog
-     */
-    fog: boolean;
-
-    setValues(parameters: MeshBasicMaterialParameters): void;
 }
 
 /**
@@ -10315,139 +9604,285 @@ declare class SkinnedMesh<
     boneTransform(index: number, target: Vector3): Vector3;
 }
 
-declare class Font {
-    constructor(jsondata: any);
-
-    /**
-     * @default 'Font'
-     */
-    type: string;
-
-    data: string;
-
-    generateShapes(text: string, size: number): Shape[];
-}
-
-interface TextGeometryParameters extends ExtrudeGeometryOptions {
-    font: Font;
-
-    /**
-     * Size of the text
-     * Expects a `Float`.
-     * @defaultValue `100`
-     */
-    size?: number | undefined;
-
-    /**
-     * Thickness to extrude text.
-     * Expects a `Float`.
-     * @defaultValue `50`
-     */
-    height?: number | undefined;
-
-    /**
-     * @override
-     * @defaultValue `12`
-     */
-    curveSegments?: number | undefined;
-
-    /**
-     * @defaultValue `false`
-     */
-    bevelEnabled?: boolean | undefined;
-
-    /**
-     * How deep into text bevel goes.
-     * Expects a `Float`.
-     * @override
-     * @defaultValue `10`
-     */
-    bevelThickness?: number | undefined;
-
-    /**
-     * How far from text outline is bevel.
-     * Expects a `Float`.
-     * @override
-     * @defaultValue `8`
-     */
-    bevelSize?: number | undefined;
-
-    /**
-     * How far from text outline bevel starts.
-     * Expects a `Float`.
-     * @override
-     * @defaultValue `0`
-     */
-    bevelOffset?: number | undefined;
-
-    /**
-     * @override
-     * @defaultValue `3`
-     */
-    bevelSegments?: number | undefined;
+interface OrbitControlsEventMap {
+    change: {};
+    start: {};
+    end: {};
 }
 
 /**
- * A class for generating text as a single geometry
- * @remarks
- * It is constructed by providing a string of text, and a set of parameters consisting of a loaded font and settings for the geometry's parent {@link THREE.ExtrudeGeometry | ExtrudeGeometry}
- * See the {@link THREE.FontLoader | FontLoader} page for additional details.
- * @example
- * ```typescript
- * const loader = new FontLoader();
- * loader.load('fonts/helvetiker_regular.typeface.json', function (font) {
- *     const geometry = new TextGeometry('Hello three.js!', {
- *         font: font,
- *         size: 80,
- *         height: 5,
- *         curveSegments: 12,
- *         bevelEnabled: true,
- *         bevelThickness: 10,
- *         bevelSize: 8,
- *         bevelOffset: 0,
- *         bevelSegments: 5
- *     });
- * });
- * ```
- * @see Example: {@link https://threejs.org/examples/#webgl_geometry_text | geometry / text }
- * @see {@link https://threejs.org/docs/index.html#api/en/C:/rafaelsc/Source/threejs/three.js/docs/examples/en/geometries/TextGeometry | Official Documentation}
- * @see {@link https://github.com/mrdoob/three.js/blob/master/examples/jsm/geometries/TextGeometry.js | Source}
+ * Orbit controls allow the camera to orbit around a target.
+ * @param object - The camera to be controlled. The camera must not
+ * be a child of another object, unless that object is the scene itself.
+ * @param domElement - The HTML element used for
+ * event listeners.
  */
-declare class TextGeometry extends ExtrudeGeometry {
-    /**
-     * Create a new instance of {@link TextGeometry}
-     * @param text The text that needs to be shown.
-     * @param parameters Object that can contain the following parameters. @see {@link TextGeometryParameters} for defaults.
-     */
-    constructor(text: string, parameters?: TextGeometryParameters);
+declare class OrbitControls extends EventDispatcher<OrbitControlsEventMap> {
+    constructor(object: Camera$1, domElement?: HTMLElement);
 
     /**
-     * A Read-only _string_ to check if `this` object type.
-     * @remarks Sub-classes will update this value.
-     * @defaultValue `TextGeometry`
+     * The camera being controlled.
      */
-    override readonly type: string | 'TextGeometry';
+    object: Camera$1;
 
     /**
-     * An object with a property for each of the constructor parameters.
-     * @remarks Any modification after instantiation does not change the geometry.
+     * The HTMLElement used to listen for mouse / touch events.
+     * This must be passed in the constructor;
+     * changing it here will not set up new event listeners.
      */
-    readonly parameters: {
-        readonly shapes: Shape | Shape[];
-        readonly options: TextGeometryParameters;
-    };
-}
+    domElement: HTMLElement | Document;
 
-declare class CSS3DObject extends Object3D {
-    constructor(element: HTMLElement);
-    element: HTMLElement;
+    /**
+     * When set to `false`, the controls will not respond to user input.
+     * @default true
+     */
+    enabled: boolean;
 
-    onBeforeRender: (renderer: unknown, scene: Scene, camera: Camera) => void;
-    onAfterRender: (renderer: unknown, scene: Scene, camera: Camera) => void;
-}
+    /**
+     * The focus point of the controls, the .object orbits around this.
+     * It can be updated manually at any point to change the focus
+     * of the controls.
+     */
+    target: Vector3;
 
-declare class CSS3DSprite extends CSS3DObject {
-    constructor(element: HTMLElement);
+    /** @deprecated */
+    center: Vector3;
+
+    /**
+     * How far you can dolly in ( PerspectiveCamera only ).
+     * @default 0
+     */
+    minDistance: number;
+
+    /**
+     * How far you can dolly out ( PerspectiveCamera only ).
+     * @default Infinity
+     */
+    maxDistance: number;
+
+    /**
+     * How far you can zoom in ( OrthographicCamera only ).
+     * @default 0
+     */
+    minZoom: number;
+
+    /**
+     * How far you can zoom out ( OrthographicCamera only ).
+     * @default Infinity
+     */
+    maxZoom: number;
+
+    /**
+     * How far you can orbit vertically, lower limit.
+     * Range is 0 to Math.PI radians.
+     * @default 0
+     */
+    minPolarAngle: number;
+
+    /**
+     * How far you can orbit vertically, upper limit.
+     * Range is 0 to Math.PI radians.
+     * @default Math.PI.
+     */
+    maxPolarAngle: number;
+
+    /**
+     * How far you can orbit horizontally, lower limit.
+     * If set, the interval [ min, max ]
+     * must be a sub-interval of [ - 2 PI, 2 PI ],
+     * with ( max - min < 2 PI ).
+     * @default Infinity
+     */
+    minAzimuthAngle: number;
+
+    /**
+     * How far you can orbit horizontally, upper limit.
+     * If set, the interval [ min, max ] must be a sub-interval
+     * of [ - 2 PI, 2 PI ], with ( max - min < 2 PI ).
+     * @default Infinity
+     */
+    maxAzimuthAngle: number;
+
+    /**
+     * Set to true to enable damping (inertia), which can
+     * be used to give a sense of weight to the controls.
+     * Note that if this is enabled, you must call
+     * .update () in your animation loop.
+     * @default false
+     */
+    enableDamping: boolean;
+
+    /**
+     * The damping inertia used if .enableDamping is set to true.
+     * Note that for this to work,
+     * you must call .update () in your animation loop.
+     * @default 0.05
+     */
+    dampingFactor: number;
+
+    /**
+     * Enable or disable zooming (dollying) of the camera.
+     * @default true
+     */
+    enableZoom: boolean;
+
+    /**
+     * Speed of zooming / dollying.
+     * @default 1
+     */
+    zoomSpeed: number;
+
+    /**
+     * Setting this property to `true` allows to zoom to the cursor's position.
+     * @default false
+     */
+    zoomToCursor: boolean;
+
+    /**
+     * Enable or disable horizontal and
+     * vertical rotation of the camera.
+     * Note that it is possible to disable a single axis
+     * by setting the min and max of the polar angle or
+     * azimuth angle to the same value, which will cause
+     * the vertical or horizontal rotation to be fixed at that value.
+     * @default true
+     */
+    enableRotate: boolean;
+
+    /**
+     * Speed of rotation.
+     * @default 1
+     */
+    rotateSpeed: number;
+
+    /**
+     * Enable or disable camera panning.
+     * @default true
+     */
+    enablePan: boolean;
+
+    /**
+     * Speed of panning.
+     * @default 1
+     */
+    panSpeed: number;
+
+    /**
+     * Defines how the camera's position is translated when panning.
+     * If true, the camera pans in screen space. Otherwise,
+     * the camera pans in the plane orthogonal to the camera's
+     * up direction. Default is true for OrbitControls; false for MapControls.
+     * @default true
+     */
+    screenSpacePanning: boolean;
+
+    /**
+     * How fast to pan the camera when the keyboard is used.
+     * Default is 7.0 pixels per keypress.
+     * @default 7
+     */
+    keyPanSpeed: number;
+
+    /**
+     * Set to true to automatically rotate around the target.
+     * Note that if this is enabled, you must call .update() in your animation loop. If you want the auto-rotate speed
+     * to be independent of the frame rate (the refresh rate of the display), you must pass the time `deltaTime`, in
+     * seconds, to .update().
+     */
+    autoRotate: boolean;
+
+    /**
+     * How fast to rotate around the target if .autoRotate is true.
+     * Default is 2.0, which equates to 30 seconds per orbit at 60fps.
+     * Note that if .autoRotate is enabled, you must call
+     * .update () in your animation loop.
+     * @default 2
+     */
+    autoRotateSpeed: number;
+
+    /**
+     * This object contains references to the keycodes for controlling
+     * camera panning. Default is the 4 arrow keys.
+     */
+    keys: { LEFT: string; UP: string; RIGHT: string; BOTTOM: string };
+
+    /**
+     * This object contains references to the mouse actions used
+     * by the controls.
+     */
+    mouseButtons: Partial<{ LEFT: MOUSE; MIDDLE: MOUSE; RIGHT: MOUSE }>;
+
+    /**
+     * This object contains references to the touch actions used by
+     * the controls.
+     */
+    touches: Partial<{ ONE: TOUCH; TWO: TOUCH }>;
+
+    /**
+     * Used internally by the .saveState and .reset methods.
+     */
+    target0: Vector3;
+
+    /**
+     * Used internally by the .saveState and .reset methods.
+     */
+    position0: Vector3;
+
+    /**
+     * Used internally by the .saveState and .reset methods.
+     */
+    zoom0: number;
+
+    /**
+     * Update the controls. Must be called after any manual changes to the camera's transform, or in the update loop if
+     * .autoRotate or .enableDamping are set. `deltaTime`, in seconds, is optional, and is only required if you want the
+     * auto-rotate speed to be independent of the frame rate (the refresh rate of the display).
+     */
+    update(deltaTime?: number): boolean;
+
+    /**
+     * Adds key event listeners to the given DOM element. `window`
+     * is a recommended argument for using this method.
+     * @param domElement
+     */
+    listenToKeyEvents(domElement: HTMLElement | Window): void;
+
+    /**
+     * Removes the key event listener previously defined with {@link listenToKeyEvents}.
+     */
+    stopListenToKeyEvents(): void;
+
+    /**
+     * Save the current state of the controls. This can later be
+     * recovered with .reset.
+     */
+    saveState(): void;
+
+    /**
+     * Reset the controls to their state from either the last time
+     * the .saveState was called, or the initial state.
+     */
+    reset(): void;
+
+    /**
+     * Remove all the event listeners.
+     */
+    dispose(): void;
+
+    /**
+     * Get the current vertical rotation, in radians.
+     */
+    getPolarAngle(): number;
+
+    /**
+     * Get the current horizontal rotation, in radians.
+     */
+    getAzimuthalAngle(): number;
+
+    /**
+     * Returns the distance from the camera to the target.
+     */
+    getDistance(): number;
 }
 
 interface CommonModelOptions {
@@ -10467,9 +9902,15 @@ interface CommonModelOptions {
         index?: number;
     };
 }
+type Position = {
+    x?: number;
+    y?: number;
+    z?: number;
+};
+type Camera = THREE.Camera & Position;
 
 interface AddControlsParams {
-    callback?: (scene: Scene, camera: Camera) => void;
+    callback?: (scene: Scene, camera: Camera$1) => void;
 }
 interface CreateAxesHelperParams {
     length?: number;
@@ -10508,23 +9949,9 @@ type InitParams = {
     axesHelperConfigs?: CreateAxesHelperParams;
     rendererConfigs?: CreateRendererParams;
 } | null;
-interface CreateCss3dObjectParams {
-    element: HTMLElement;
-}
 interface InitCss3dParams {
     scene: Scene;
-    camera: Camera;
-}
-interface CreateTextParams {
-    text: string;
-    color?: number | string;
-    fontSize?: number;
-    thickness?: number;
-    position?: {
-        x: number;
-        y: number;
-        z: number;
-    };
+    camera: Camera$1;
 }
 
 declare class KTX2Loader extends CompressedTextureLoader {
@@ -10546,7 +9973,7 @@ interface GLTF {
     animations: AnimationClip[];
     scene: Group;
     scenes: Group[];
-    cameras: Camera[];
+    cameras: Camera$1[];
     asset: {
         copyright?: string | undefined;
         generator?: string | undefined;
@@ -10619,7 +10046,7 @@ declare class GLTFParser {
         primitives: Array<{ [key: string]: any }>,
     ) => Promise<BufferGeometry[]>;
     loadMesh: (meshIndex: number) => Promise<Group | Mesh | SkinnedMesh>;
-    loadCamera: (cameraIndex: number) => Promise<Camera>;
+    loadCamera: (cameraIndex: number) => Promise<Camera$1>;
     loadSkin: (skinIndex: number) => Promise<Skeleton>;
     loadAnimation: (animationIndex: number) => Promise<AnimationClip>;
     loadNode: (nodeIndex: number) => Promise<Object3D>;
@@ -10654,23 +10081,17 @@ interface LoadFBXParams {
 }
 
 declare const lec3d: {
-    loadGLTF: ({ modelPath, options, callback }: LoadGLTFParams) => void;
+    loadGLTF: ({ modelPath, options, callback, }: LoadGLTFParams) => LoadGLTFReturns;
     init: (params: InitParams) => {
         renderer: WebGLRenderer;
-        camera: PerspectiveCamera;
+        camera: Camera;
         scene: Scene;
         mountTo: (element: HTMLElement) => void;
         refresh: () => void;
-        addControls: ({ callback }: AddControlsParams) => void;
-        getClickEventTargets: (event: MouseEvent) => Intersection<Object3D<Object3DEventMap>>[];
+        addControls: (params?: AddControlsParams | undefined) => OrbitControls;
+        getClickEventTargets: (event: MouseEvent) => InitReturns;
     };
-    initCss3d: ({ scene, camera }: InitCss3dParams) => {
-        refresh: () => void;
-        mountTo: (element: HTMLElement) => void;
-        createCss3dObject: ({ element }: CreateCss3dObjectParams) => CSS3DObject;
-        createCss3dSprite: ({ element }: CreateCss3dObjectParams) => CSS3DSprite;
-        createText: ({ text, color, fontSize, thickness, position, }: CreateTextParams) => Mesh<TextGeometry, MeshBasicMaterial, Object3DEventMap>;
-    };
+    initCss3d: ({ scene, camera, }: InitCss3dParams) => InitCss3dReturns;
     loadFBX: ({ modelPath, options, callback }: LoadFBXParams) => void;
 };
 
