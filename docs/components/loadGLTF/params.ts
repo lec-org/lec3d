@@ -12,6 +12,7 @@ interface CommonModelOptions {
   // 模型的名字
   name?: string;
   // 模型位置
+
   position?: {
     x?: number;
     y?: number;
