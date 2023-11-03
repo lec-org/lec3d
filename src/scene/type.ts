@@ -1,5 +1,12 @@
+import { CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer.js";
+import { Renderer } from "./../../dist/src/type.d";
 import { SceneItem } from "./../type";
-import { Scene, Camera } from "three";
+import { Scene, Camera, Intersection, Object3D, Object3DEventMap } from "three";
+import {
+  CSS3DObject,
+  CSS3DSprite,
+} from "three/examples/jsm/renderers/CSS3DRenderer";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 
 export interface InitSceneParams {
   /** 辅助坐标轴 */
@@ -66,6 +73,17 @@ export type InitParams = {
   rendererConfigs?: CreateRendererParams;
 } | null;
 
+export type InitReturns = {
+  renderer: Renderer;
+  camera: Camera;
+  scene: Scene;
+  mountTo: (el: HTMLElement) => void;
+  refresh: () => void;
+  addControls: (params: AddControlsParams) => AddControlsParams;
+  getClickEventTargets: (
+    e: MouseEvent
+  ) => Intersection<Object3D<Object3DEventMap>>[];
+};
 export interface CreateCss3dRendererParams {
   scene: Scene;
   camera: Camera;
@@ -82,6 +100,24 @@ export interface InitCss3dParams {
   scene: Scene;
   camera: Camera;
 }
+
+export type InitCss3dReturns = {
+  refresh: () => void;
+  mountTo: (element: HTMLElement) => void;
+  createCss3dObject: ({ element }: CreateCss3dObjectParams) => CSS3DObject;
+  createCss3dSprite: ({ element }: CreateCss3dObjectParams) => CSS3DSprite;
+  createText: ({
+    text,
+    color,
+    fontSize,
+    thickness,
+    position,
+  }: CreateTextParams) => THREE.Mesh<
+    TextGeometry,
+    THREE.MeshBasicMaterial,
+    THREE.Object3DEventMap
+  >;
+};
 
 export interface CreateCanvasPlaneParams {
   element: HTMLElement;
@@ -108,6 +144,12 @@ export interface CreateTextParams {
 
 // TODO: 后续有改动再调整
 export type InitCss2dParams = InitCss3dParams;
+export type InitCss2dReturns = {
+  refresh: () => void;
+  mountTo: (element: HTMLElement) => void;
+  createCss2dObject: (params: CreateCss2dObjectParams) => CSS2DObject;
+};
+
 export type CreateCss2dRendererParams = CreateCss3dRendererParams;
 
 export interface CreateCss2dObjectParams {

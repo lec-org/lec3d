@@ -2,8 +2,11 @@ import {
   AddControlsParams,
   CreateCss2dObjectParams,
   InitCss2dParams,
+  InitCss2dReturns,
   InitCss3dParams,
+  InitCss3dReturns,
   InitParams,
+  InitReturns,
 } from "./type";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as THREE from "three";
@@ -67,7 +70,7 @@ export const init = (params: InitParams) => {
   };
 
   // 射线拾取，鼠标点击，获取点击射线穿透的所有物体
-  const getClickEventTargets = (event: MouseEvent) => {
+  const getClickEventTargets = (event: MouseEvent): InitReturns => {
     const meshArr: Array<THREE.Object3D<THREE.Object3DEventMap>> = [];
     const pointer = new THREE.Vector2();
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -106,7 +109,10 @@ export const init = (params: InitParams) => {
 };
 
 /** 创建 css 3D 内容 */
-export const initCss3d = ({ scene, camera }: InitCss3dParams) => {
+export const initCss3d = ({
+  scene,
+  camera,
+}: InitCss3dParams): InitCss3dReturns => {
   const { refresh, mountTo } = createCss3dRenderer({ scene, camera });
 
   const __autoRefresh = () => {
@@ -125,7 +131,10 @@ export const initCss3d = ({ scene, camera }: InitCss3dParams) => {
 };
 
 /** 创建 css 2D 内容 */
-export const initCss2d = ({ scene, camera }: InitCss2dParams) => {
+export const initCss2d = ({
+  scene,
+  camera,
+}: InitCss2dParams): InitCss2dReturns => {
   const { refresh, mountTo } = createCss2dRenderer({ scene, camera });
   // 观察者队列
   const css2dObjectList: Array<CSS2DObject> = [];

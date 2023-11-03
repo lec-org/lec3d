@@ -6,3 +6,5 @@ export interface LoadGLTFParams {
   options?: CommonModelOptions;
   callback?: (gltf: GLTF, model: THREE.Group<THREE.Object3DEventMap>) => void;
 }
+
+export type LoadGLTFReturns = void;
