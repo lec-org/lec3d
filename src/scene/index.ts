@@ -52,6 +52,7 @@ export const init = (params: InitParams): InitReturns => {
   // TODO：下述方法后续移入 utils 中， index 中做到尽量不额外创建函数
   // 挂载
   const mountTo = (element: HTMLElement) => {
+    renderer.setSize(element.offsetWidth,element.offsetHeight)
     element.appendChild(renderer.domElement);
   };
 

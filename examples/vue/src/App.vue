@@ -1,5 +1,5 @@
 <template>
-  <div ref="el" id="three"></div>
+  <div ref="el" id="three" style="width: 500px;height: 500px;"></div>
 </template>
 
 <script setup lang="ts">
@@ -102,6 +102,7 @@ onMounted(() => {
 
   mountCss2dTo(el.value);
   mountCss3dTo(el.value);
+
   mountTo(el.value);
 });
 </script>
