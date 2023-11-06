@@ -1,5 +1,5 @@
 <template>
-  <div ref="el" id="three" style="width: 500px;height: 500px;"></div>
+  <div ref="el" id="three"></div>
 </template>
 
 <script setup lang="ts">
@@ -11,23 +11,19 @@ import { CSS3DObject } from "three/examples/jsm/renderers/CSS3DRenderer.js";
 const el = ref();
 
 onMounted(() => {
-  const { scene, renderer,getClickEventTargets, camera, mountTo, refresh, addControls } = lec3d.init(
-    {
-      axesHelperConfigs: {
-        length: 10000,
-      },
-    }
-  );
-  let mixers = []
-  //   window.addEventListener("mousedown",(event)=>{
-  //      let targets = getClickEventTargets(event)
-  //      const material = new THREE.MeshPhongMaterial({
-  //   color: 0xff0000,
-  //   shininess: 20, //高光部分的亮度，默认30
-  // });
-  //      targets[0].object.material = material
-  //      console.log(targets[0].object.material)
-  //   })
+  const {
+    scene,
+    renderer,
+    getClickEventTargets,
+    camera,
+    mountTo,
+    refresh,
+    addControls,
+  } = lec3d.init({
+    axesHelperConfigs: {
+      length: 10000,
+    },
+  });
   // 创建css3d对象
   const {
     mountTo: mountCss3dTo,
@@ -40,7 +36,14 @@ onMounted(() => {
     camera,
   });
 
-  const textMesh = createText({ text: "Hello World" });
+  const textMesh = createText({
+    text: "Hello World",
+    options: {
+      rotation: {
+        x: "-30",
+      },
+    },
+  });
   scene.add(textMesh);
 
   let value = 1;
@@ -55,46 +58,24 @@ onMounted(() => {
 
   const controls = addControls();
 
-    lec3d.loadFBX({
-      modelPath: "3d_model/mythra.fbx",
-      options: {
-        scale: 0.01,
-        position: {
-          x: 10,
-          y: 10,
-        }, 
-        animation:{
-          index:1
-        }
+  lec3d.loadFBX({
+    modelPath: "3d_model/mythra.fbx",
+    options: {
+      scale: 0.01,
+      position: {
+        x: 10,
+        y: 10,
       },
-      callback: (FBX:any,animationStart:Function) => {
-        // camera.lookAt(model.position)
-        console.log(FBX)
-        animationStart()
-        scene.add(FBX);
-       
+      animation: {
+        index: 1,
       },
-    });
-  
-   
-
-  // lec3d.loadGLTF({
-  //   modelPath: "3d_model/scene.gltf",
-  //   options: {
-  //     scale: 30,
-  //     position: {
-  //       x: 100,
-  //       y: 100,
-  //     },
-  //     rotation: {
-  //       x: "30",
-  //       z: -0.5,
-  //     },
-  //   },
-  //   callback: (gltf, model) => {
-  //     scene.add(model);
-  //   },
-  // });
+    },
+    callback: (FBX: any, animationStart: Function) => {
+      // camera.lookAt(model.position)
+      scene.add(FBX);
+      animationStart();
+    },
+  });
 
   setTimeout(() => {
     camera.position.x++;
@@ -106,3 +87,14 @@ onMounted(() => {
   mountTo(el.value);
 });
 </script>
+
+<style scoped>
+body {
+  padding: 0;
+  margin: 0;
+}
+#three {
+  width: 100vw;
+  height: 100vh;
+}
+</style>

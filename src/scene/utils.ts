@@ -24,6 +24,7 @@ import {
   CSS2DRenderer,
   CSS2DObject,
 } from "three/examples/jsm/renderers/CSS2DRenderer.js";
+import { transferRotationValue } from "../utils";
 /** 创建场景 */
 export const createScene = () => {
   const scene = new THREE.Scene();
@@ -163,29 +164,48 @@ export const createCss3dSprite = ({ element }: CreateCss3dObjectParams) => {
 };
 
 /** 创建文本模型 */
-export const createText = ({
-  text,
-  color = 0x000000,
-  fontSize = 16,
-  thickness = 0,
-  position = {
-    x: 0,
-    y: 0,
-    z: 0,
-  },
-}: CreateTextParams) => {
+export const createText = ({ text, options = {} }: CreateTextParams) => {
+  const finalOptions = {
+    color: 0x000000,
+    fontSize: 16,
+    thickness: 0,
+    position: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    rotation: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    ...options,
+  };
+
+  console.log("???", finalOptions);
+
   const loader = new FontLoader();
   const font = loader.parse(helvetikerRegular);
 
-  const material = new THREE.MeshBasicMaterial({ color });
+  const material = new THREE.MeshBasicMaterial({ color: finalOptions.color });
   const textGeometry = new TextGeometry(text, {
     font: font,
-    size: fontSize,
-    height: thickness, // 字体厚度
+    size: finalOptions.fontSize,
+    height: finalOptions.thickness, // 字体厚度
   });
 
   const textMesh = new THREE.Mesh(textGeometry, material);
+  const position = finalOptions.position;
+  const rotation = finalOptions.rotation;
+
   textMesh.position.set(position.x, position.y, position.z);
+  const rotX = transferRotationValue(rotation?.x);
+  const rotY = transferRotationValue(rotation?.y);
+  const rotZ = transferRotationValue(rotation?.z);
+  textMesh.rotateX(rotX);
+  textMesh.rotateY(rotY);
+  textMesh.rotateZ(rotZ);
+
   return textMesh;
 };
 

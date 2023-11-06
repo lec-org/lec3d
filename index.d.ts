@@ -10709,17 +10709,24 @@ type InitCss3dReturns = {
     mountTo: (element: HTMLElement) => void;
     createCss3dObject: ({ element }: CreateCss3dObjectParams) => CSS3DObject;
     createCss3dSprite: ({ element }: CreateCss3dObjectParams) => CSS3DSprite;
-    createText: ({ text, color, fontSize, thickness, position, }: CreateTextParams) => THREE.Mesh<TextGeometry, THREE.MeshBasicMaterial, THREE.Object3DEventMap>;
+    createText: ({ text, options, }: CreateTextParams) => THREE.Mesh<TextGeometry, THREE.MeshBasicMaterial, THREE.Object3DEventMap>;
 };
 interface CreateTextParams {
     text: string;
-    color?: number | string;
-    fontSize?: number;
-    thickness?: number;
-    position?: {
-        x: number;
-        y: number;
-        z: number;
+    options?: {
+        color?: number | string;
+        fontSize?: number;
+        thickness?: number;
+        position?: {
+            x: number;
+            y: number;
+            z: number;
+        };
+        rotation?: {
+            x?: number | string;
+            y?: number | string;
+            z?: number | string;
+        };
     };
 }
 type InitCss2dReturns = {
