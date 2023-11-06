@@ -25,13 +25,14 @@ import {
   createCss2dObject,
 } from "./utils.js";
 import { CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer";
-import { Group, Raycaster, Vector2 } from "three";
+import { Group, Object3D, Object3DEventMap, Raycaster, Vector2 } from "three";
+import { Scene } from "../type";
 
 /** 创建基本三维场景 */
 export const init = (params: InitParams): InitReturns => {
   // TODO: 完善 createScene 的自定义参数支持
   // 创建场景
-  const scene = createScene();
+  let scene: Scene | null = createScene();
   // 创建并添加光源
   const light = createLight({ ...params?.lightConfigs });
   scene.add(light.ambientLight);
@@ -52,20 +53,20 @@ export const init = (params: InitParams): InitReturns => {
   // TODO：下述方法后续移入 utils 中， index 中做到尽量不额外创建函数
   // 挂载
   const mountTo = (element: HTMLElement) => {
-    renderer.setSize(element.offsetWidth,element.offsetHeight)
+    renderer.setSize(element.offsetWidth, element.offsetHeight);
     element.appendChild(renderer.domElement);
   };
 
   // 每一帧自动更新页面内容
   const refresh = () => {
-    renderer.render(scene, camera);
+    renderer.render(scene as Scene, camera);
   };
 
   // 添加控制, 使鼠标能够控制相机视角
   const addControls = (params?: AddControlsParams) => {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.addEventListener("change", () => {
-      params?.callback?.(scene, camera);
+      params?.callback?.(scene as Scene, camera);
     });
     return controls;
   };
@@ -80,7 +81,7 @@ export const init = (params: InitParams): InitReturns => {
     const rayCaster = new THREE.Raycaster();
     rayCaster.setFromCamera(pointer, camera);
 
-    scene.children?.forEach((child) => {
+    scene?.children?.forEach((child) => {
       if (child.isObject3D) {
         meshArr.push(child);
       }
@@ -92,11 +93,34 @@ export const init = (params: InitParams): InitReturns => {
   };
 
   // 内部方法, 每一帧自动刷新
+  let rafId: number;
   const __autoRefresh = () => {
     refresh();
-    window.requestAnimationFrame(__autoRefresh);
+    rafId = window.requestAnimationFrame(__autoRefresh);
   };
   __autoRefresh();
+
+  // 清空场景
+  const clear = () => {
+    // 移除所有内容
+    while (scene && scene.children.length > 0) {
+      const obj = scene.children[0] as Object3D<Object3DEventMap>;
+      scene.remove(obj);
+    }
+  };
+
+  // 卸载canvas元素
+  const unload = () => {
+    cancelAnimationFrame(rafId);
+    clear();
+    renderer.renderLists.dispose();
+    renderer.clear();
+    scene = null;
+    const timeId = setTimeout(() => {
+      renderer.domElement.remove();
+      clearTimeout(timeId);
+    }, 0);
+  };
 
   return {
     renderer,
@@ -106,6 +130,8 @@ export const init = (params: InitParams): InitReturns => {
     refresh,
     addControls,
     getClickEventTargets,
+    clear,
+    unload,
   };
 };
 
@@ -144,7 +170,7 @@ export const initCss2d = ({
   const wrappedCreateCss2dObject = (params: CreateCss2dObjectParams) => {
     // TODO: 删除对象后，考虑如何移出观察者队列
     const css2dObject = createCss2dObject(params);
-    if (params.occludable) {
+    if (params?.occludable) {
       css2dObjectList.push(css2dObject);
     }
     return css2dObject;

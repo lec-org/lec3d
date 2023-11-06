@@ -1,13 +1,12 @@
 <template>
   <div ref="el" id="three"></div>
+  <div>Hello</div>
 </template>
 
 <script setup lang="ts">
 // import * as lec3d from "@trickle/lec3d";
 import lec3d from "../../../dist/index.js";
-import * as THREE from "three";
 import { onMounted, ref } from "vue";
-import { CSS3DObject } from "three/examples/jsm/renderers/CSS3DRenderer.js";
 const el = ref();
 
 onMounted(() => {
@@ -18,6 +17,8 @@ onMounted(() => {
     camera,
     mountTo,
     refresh,
+    clear,
+    unload,
     addControls,
   } = lec3d.init({
     axesHelperConfigs: {
@@ -37,7 +38,7 @@ onMounted(() => {
   });
 
   const textMesh = createText({
-    text: "Hello World",
+    text: "你好",
     options: {
       rotation: {
         x: "-30",
@@ -83,7 +84,6 @@ onMounted(() => {
 
   mountCss2dTo(el.value);
   mountCss3dTo(el.value);
-
   mountTo(el.value);
 });
 </script>

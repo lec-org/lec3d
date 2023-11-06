@@ -88,6 +88,8 @@ export type InitReturns = {
   getClickEventTargets: (
     e: MouseEvent
   ) => Intersection<Object3D<Object3DEventMap>>[];
+  clear: () => void;
+  unload: () => void;
 };
 export interface CreateCss3dRendererParams {
   scene: Scene;
@@ -137,6 +139,7 @@ export interface CreateTextParams {
   options?: {
     color?: number | string;
     fontSize?: number;
+    fontFamilyFile?: string;
     thickness?: number;
     position?: {
       x: number;
@@ -163,6 +166,6 @@ export type CreateCss2dRendererParams = CreateCss3dRendererParams;
 
 export interface CreateCss2dObjectParams {
   content: string | HTMLElement;
-  style: Record<string, any>;
-  occludable: boolean;
+  style?: Record<string, string | number>;
+  occludable?: boolean;
 }

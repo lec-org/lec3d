@@ -10696,6 +10696,8 @@ type InitReturns = {
     refresh: () => void;
     addControls: (params?: AddControlsParams) => OrbitControls;
     getClickEventTargets: (e: MouseEvent) => Intersection<Object3D<Object3DEventMap>>[];
+    clear: () => void;
+    unload: () => void;
 };
 interface CreateCss3dObjectParams {
     element: HTMLElement;
@@ -10716,6 +10718,7 @@ interface CreateTextParams {
     options?: {
         color?: number | string;
         fontSize?: number;
+        fontFamilyFile?: string;
         thickness?: number;
         position?: {
             x: number;
@@ -10736,8 +10739,8 @@ type InitCss2dReturns = {
 };
 interface CreateCss2dObjectParams {
     content: string | HTMLElement;
-    style: Record<string, any>;
-    occludable: boolean;
+    style?: Record<string, string | number>;
+    occludable?: boolean;
 }
 
 declare class KTX2Loader extends CompressedTextureLoader {
