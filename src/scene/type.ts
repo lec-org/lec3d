@@ -113,10 +113,7 @@ export type InitCss3dReturns = {
   createCss3dSprite: ({ element }: CreateCss3dObjectParams) => CSS3DSprite;
   createText: ({
     text,
-    color,
-    fontSize,
-    thickness,
-    position,
+    options,
   }: CreateTextParams) => THREE.Mesh<
     TextGeometry,
     THREE.MeshBasicMaterial,
@@ -137,13 +134,20 @@ export interface CreateCanvasPlaneParams {
 
 export interface CreateTextParams {
   text: string;
-  color?: number | string;
-  fontSize?: number;
-  thickness?: number;
-  position?: {
-    x: number;
-    y: number;
-    z: number;
+  options?: {
+    color?: number | string;
+    fontSize?: number;
+    thickness?: number;
+    position?: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    rotation?: {
+      x?: number | string;
+      y?: number | string;
+      z?: number | string;
+    };
   };
 }
 
