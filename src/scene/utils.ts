@@ -19,6 +19,8 @@ import {
 } from "./type";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
+//
+// import microsoftYaHei from "../static/font/Microsoft_YaHei_Regular.json";
 import helvetikerRegular from "three/examples/fonts/helvetiker_regular.typeface.json";
 import {
   CSS2DRenderer,
@@ -168,6 +170,7 @@ export const createText = ({ text, options = {} }: CreateTextParams) => {
   const finalOptions = {
     color: 0x000000,
     fontSize: 16,
+    fontFamilyFile: helvetikerRegular,
     thickness: 0,
     position: {
       x: 0,
@@ -179,13 +182,12 @@ export const createText = ({ text, options = {} }: CreateTextParams) => {
       y: 0,
       z: 0,
     },
+
     ...options,
   };
 
-  console.log("???", finalOptions);
-
   const loader = new FontLoader();
-  const font = loader.parse(helvetikerRegular);
+  const font = loader.parse(finalOptions.fontFamilyFile);
 
   const material = new THREE.MeshBasicMaterial({ color: finalOptions.color });
   const textGeometry = new TextGeometry(text, {

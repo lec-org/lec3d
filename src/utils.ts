@@ -11,3 +11,7 @@ export const transferRotationValue = (param?: string | number): number => {
   }
   return 0;
 };
+
+export default {
+  transferRotationValue,
+};

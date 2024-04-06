@@ -1,0 +1,11 @@
+Model Information:
+* title:	Easter island head
+* source:	https://sketchfab.com/3d-models/easter-island-head-63b114c5e7d24f7fae421dfacfe41376
+* author:	VidovicArts (https://sketchfab.com/oshjavid)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Easter island head" (https://sketchfab.com/3d-models/easter-island-head-63b114c5e7d24f7fae421dfacfe41376) by VidovicArts (https://sketchfab.com/oshjavid) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

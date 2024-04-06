@@ -9,7 +9,7 @@ export interface LoadGLTFParams {
 export interface LoadFBXParams {
   modelPath: string;
   options?: CommonModelOptions;
-  callback?: (FBX: any,animationStart:Function) => void;
+  callback?: (FBX: any, animationStart: Function) => void;
 }
 
-export type LoadGLTFReturns = void;
+// export type LoadGLTFReturns = void;
