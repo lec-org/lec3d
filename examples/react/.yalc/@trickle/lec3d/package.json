@@ -1,0 +1,43 @@
+{
+  "name": "@trickle/lec3d",
+  "version": "0.0.5",
+  "description": "easier three.js encapsulated by lec",
+  "main": "dist/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf dist && rollup -c",
+    "build:dev": "rollup -c --watch",
+    "scriptname": "cmd",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "keywords": [
+    "three.js",
+    "3d",
+    "lec",
+    "front-end",
+    "fe",
+    "JavaScript",
+    "js"
+  ],
+  "author": [
+    "2779066456@qq.com"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lec-org/lec3d.git"
+  },
+  "homepage": "https://github.com/lec-org/lec3d",
+  "license": "MIT",
+  "peerDependencies": {
+    "three": "^0.157.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "yalcSig": "dc9ad0fb6c921ece3326712e85a4d5bc"
+}

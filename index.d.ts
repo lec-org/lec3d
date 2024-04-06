@@ -10870,11 +10870,12 @@ interface LoadFBXParams {
 }
 
 declare const lec3d: {
-    loadGLTF: ({ modelPath, options, callback, }: LoadGLTFParams) => void;
+    loadGLTF: ({ modelPath, options, callback, }: LoadGLTFParams) => Promise<any>;
     init: (params: InitParams) => InitReturns;
     initCss3d: ({ scene, camera, }: InitCss3dParams) => InitCss3dReturns;
     initCss2d: ({ scene, camera, }: InitCss3dParams) => InitCss2dReturns;
-    loadFBX: ({ modelPath, options, callback }: LoadFBXParams) => void;
+    loadFBX: ({ modelPath, options, callback, }: LoadFBXParams) => Promise<any>;
+    transferRotationValue: (param?: string | number | undefined) => number;
 };
 
 export { lec3d as default };
