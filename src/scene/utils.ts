@@ -88,13 +88,16 @@ export const createRenderer = ({
   width = window.innerWidth,
   height = window.innerHeight,
   backgroundColor = 0xffffff,
-  backgroundColorOpacity = 0,
+  backgroundColorOpacity = 1,
 }: CreateRendererParams): Renderer => {
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
     preserveDrawingBuffer: true,
   });
-  renderer.setClearColor(backgroundColor, backgroundColorOpacity);
+  renderer.setClearColor(
+    new THREE.Color(backgroundColor),
+    backgroundColorOpacity
+  );
   // renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.setSize(width, height);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;

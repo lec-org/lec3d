@@ -1,6 +1,6 @@
 {
   "name": "@trickle/lec3d",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "description": "easier three.js encapsulated by lec",
   "main": "dist/index.js",
   "publishConfig": {

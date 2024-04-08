@@ -32,7 +32,8 @@ function App() {
         color: 'orange'
       },
       rendererConfigs: {
-        backgroundColor: 'red'
+        backgroundColor: '#ff3700',
+        backgroundColorOpacity: 0.1
       }
     });
     addControls()
@@ -45,7 +46,7 @@ function App() {
     const textMesh = createText({
       text: "HelloWorld",
       options: {
-        color: '#ff3700',
+        color: '#ff37000',
         rotation: {
           x: "-30",
         },

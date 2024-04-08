@@ -54,6 +54,7 @@ export const init = (params: InitParams): InitReturns => {
   // 挂载
   const mountTo = (element: HTMLElement) => {
     renderer.setSize(element.offsetWidth, element.offsetHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
     element.appendChild(renderer.domElement);
   };
 
@@ -73,6 +74,7 @@ export const init = (params: InitParams): InitReturns => {
 
   // 射线拾取，鼠标点击，获取点击射线穿透的所有物体
   const getClickEventTargets = (event: MouseEvent) => {
+    if (!event?.clientX && event?.clientX !== 0) return [];
     const meshArr: Array<THREE.Object3D<THREE.Object3DEventMap>> = [];
     const pointer = new THREE.Vector2();
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -88,7 +90,6 @@ export const init = (params: InitParams): InitReturns => {
     });
 
     const targets = rayCaster.intersectObjects(meshArr);
-    // callback?.(targets);
     return targets;
   };
 
@@ -169,6 +170,7 @@ export const initCss2d = ({
   // 创建 css 2D 对象，封装一层，方便加入观察者队列
   const wrappedCreateCss2dObject = (params: CreateCss2dObjectParams) => {
     // TODO: 删除对象后，考虑如何移出观察者队列
+    // TODO: 能不能抹平一下差异，这里怎么叫content而不是element之类的，要不要改啊
     const css2dObject = createCss2dObject(params);
     if (params?.occludable) {
       css2dObjectList.push(css2dObject);
